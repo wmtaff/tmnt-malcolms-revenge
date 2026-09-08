@@ -7,6 +7,8 @@ namespace Malcolm.Runtime {
 public static partial class RuntimeLauncher {
     private static string gameDirectory;
     private static string logFile;
+    private static StreamWriter logWriter;
+    private static FileStream captureStream;
     private static bool baseline;
     private static string capturePath;
     private static int presentCount;
@@ -25,10 +27,11 @@ public static partial class RuntimeLauncher {
             gameDirectory = Path.GetFullPath(args[0]);
             logFile = Path.GetFullPath(args[1]);
             baseline = args.Length == 3;
-            Directory.CreateDirectory(Path.GetDirectoryName(logFile));
-            Log("START baseline=" + baseline + " game=" + gameDirectory + " runtime=" + Environment.Version + " x64=" + Environment.Is64BitProcess);
+
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
             ValidatePlaytest(gameDirectory);
+            InitializeDiagnostics();
+            Log("START baseline=" + baseline + " game=" + gameDirectory + " runtime=" + Environment.Version + " x64=" + Environment.Is64BitProcess);
             Directory.SetCurrentDirectory(gameDirectory);
             if (!SetDllDirectory(gameDirectory)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
             AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e) { TraceStartupException(e.Exception); };
@@ -60,10 +63,30 @@ public static partial class RuntimeLauncher {
             return 1;
         }
     }
-    private static void InstallRenderDiagnostics(Harmony harmony) {
+    private static void AssertDiagnosticPath(string path, string extension) {
+        if (!String.Equals(Path.GetExtension(path), extension, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Diagnostic file must end in " + extension);
+        if (File.Exists(path) || Directory.Exists(path)) throw new InvalidOperationException("Diagnostic path already exists; choose a fresh filename: " + path);
+        string cursor = path;
+        while (!String.IsNullOrEmpty(cursor)) {
+            if ((File.Exists(cursor) || Directory.Exists(cursor)) && (File.GetAttributes(cursor) & FileAttributes.ReparsePoint) != 0)
+                throw new InvalidOperationException("Diagnostic path uses a reparse point: " + cursor);
+            cursor = Path.GetDirectoryName(cursor);
+        }
+        if (!Directory.Exists(Path.GetDirectoryName(path))) throw new InvalidOperationException("Diagnostic parent directory must already exist");
+    }
+    private static void InitializeDiagnostics() {
         capturePath = Environment.GetEnvironmentVariable("MALCOLM_CAPTURE_FRAME");
-        if (String.IsNullOrEmpty(capturePath)) return;
-        capturePath = Path.GetFullPath(capturePath);
+        if (!String.IsNullOrEmpty(capturePath)) capturePath = Path.GetFullPath(capturePath);
+        AssertDiagnosticPath(logFile, ".log");
+        if (!String.IsNullOrEmpty(capturePath)) AssertDiagnosticPath(capturePath, ".bmp");
+        // CreateNew rejects existing files, including hard links. Keep handles open
+        // without delete/write sharing so later samples cannot follow a replacement.
+        logWriter = new StreamWriter(new FileStream(logFile, FileMode.CreateNew, FileAccess.Write, FileShare.Read));
+        logWriter.AutoFlush = true;
+        if (!String.IsNullOrEmpty(capturePath)) captureStream = new FileStream(capturePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
+    }
+    private static void InstallRenderDiagnostics(Harmony harmony) {
+        if (captureStream == null) return;
         Type device = RequireType(Assembly.LoadFrom(Path.Combine(gameDirectory, "FNA.dll")), "Microsoft.Xna.Framework.Graphics.GraphicsDevice");
         Patch(harmony, RequireMethod(device, "Present", 0), "CaptureFrame", null);
         Patch(harmony, RequireMethod(device, "Present", 3), "CaptureFrame", null);
@@ -84,8 +107,10 @@ public static partial class RuntimeLauncher {
             byte[] pixels = new byte[checked(width * height * 4)];
             MethodInfo read = RequireMethod(__instance.GetType(), "GetBackBufferData", 1).MakeGenericMethod(typeof(byte));
             read.Invoke(__instance, new object[] { pixels });
-            Directory.CreateDirectory(Path.GetDirectoryName(capturePath));
-            using (Stream output = new FileStream(capturePath, FileMode.Create, FileAccess.Write)) WriteBitmap(output, pixels, width, height);
+            captureStream.Position = 0;
+            WriteBitmap(captureStream, pixels, width, height);
+            captureStream.SetLength(captureStream.Position);
+            captureStream.Flush();
             if (!captureReported) { captureReported = true; Log("FRAME_CAPTURED updatesEvery=120 frame=" + frame + " size=" + width + "x" + height + " path=" + capturePath); }
         } catch (Exception error) { if (!captureFailureReported) { captureFailureReported = true; Log("FRAME_CAPTURE_FAILED " + error); } }
     }
@@ -188,7 +213,7 @@ public static partial class RuntimeLauncher {
         string line = DateTime.UtcNow.ToString("o") + " " + message;
         lock (logLock) {
             Console.WriteLine(line);
-            if (logFile != null) File.AppendAllText(logFile, line + Environment.NewLine);
+            if (logWriter != null) logWriter.WriteLine(line);
         }
     }
     private static string NormalizeScene(object scene) {
@@ -224,6 +249,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 

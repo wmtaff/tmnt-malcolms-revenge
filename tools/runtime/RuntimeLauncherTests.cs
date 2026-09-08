@@ -5,6 +5,19 @@ using HarmonyLib;
 namespace Malcolm.Runtime {
 public static partial class RuntimeLauncher {
     private static void SelfTest() {
+        string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "malcolm-output-test-" + Guid.NewGuid().ToString("N"));
+        System.IO.Directory.CreateDirectory(temp);
+        string existing = System.IO.Path.Combine(temp, "existing.log");
+        try {
+            System.IO.File.WriteAllText(existing, "preserve");
+            bool blocked = false;
+            try { AssertDiagnosticPath(existing, ".log"); } catch (InvalidOperationException) { blocked = true; }
+            if (!blocked || System.IO.File.ReadAllText(existing) != "preserve") throw new Exception("Existing log not protected");
+            blocked = false;
+            try { AssertDiagnosticPath(System.IO.Path.Combine(temp,"game.exe"), ".log"); } catch (InvalidOperationException) { blocked = true; }
+            if (!blocked) throw new Exception("Unsafe diagnostic extension accepted");
+            AssertDiagnosticPath(System.IO.Path.Combine(temp,"fresh.log"), ".log");
+        } finally { System.IO.File.Delete(existing); System.IO.Directory.Delete(temp); }
         using (var bmp = new System.IO.MemoryStream()) {
             WriteBitmap(bmp, new byte[] {255,0,0,255, 0,0,255,255}, 2, 1);
             byte[] bytes = bmp.ToArray();
@@ -58,6 +71,7 @@ public static partial class RuntimeLauncher {
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }
     }
 }}
+
 
 
 
