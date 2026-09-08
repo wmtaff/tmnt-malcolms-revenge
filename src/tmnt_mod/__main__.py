@@ -17,6 +17,10 @@ def main(argv=None):
     sprite.add_argument('--width', type=int)
     sprite.add_argument('--height', type=int)
     sprite.add_argument('--max-colors', type=int)
+    commands.add_parser('inspect-background').add_argument('path')
+    background_preview = commands.add_parser('preview-background')
+    background_preview.add_argument('path')
+    background_preview.add_argument('output')
     args = parser.parse_args(argv)
     try:
         if args.command == 'inspect-game':
@@ -25,6 +29,12 @@ def main(argv=None):
         elif args.command == 'inventory-assets':
             from .assets import inventory_archive
             report = inventory_archive(args.path)
+        elif args.command == 'inspect-background':
+            from .backgrounds import inspect_background
+            report = inspect_background(args.path)
+        elif args.command == 'preview-background':
+            from .backgrounds import write_repeat_preview
+            report = write_repeat_preview(args.path, args.output)
         else:
             from .sprites import validate_sprite
             report = validate_sprite(args.path, width=args.width,

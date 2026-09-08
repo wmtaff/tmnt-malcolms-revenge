@@ -1,5 +1,17 @@
 # Review a repeating street background
 
+The first project asset set is `art/backgrounds/residential/`: `home.png`, `street.png`, and `park.png`. `generation.json` preserves the prompts, reference roles, generation mode, and intended world spans; `diagnostics.json` records source hashes and measured properties. These were generated with built-in OpenAI image generation. No API key is required for that workflow. The current set is a summer suburban prototype; its middle can repeat to extend the visual route, while the distinctive house and park appear once.
+
+Generate each new candidate using the saved prompt and prior generated assets as style references. Save rejected revisions under ignored `local/`, and place selected new versions in the art directory. Run the CLI below, inspect the repeats at the intended game scale, then update the runtime input directory. Generation does not automatically guarantee matching edge pixels, a restricted palette, or collision geometry.
+
+```powershell
+$env:PYTHONPATH = Join-Path $PWD 'src'
+python -m tmnt_mod inspect-background art/backgrounds/residential/street.png
+python -m tmnt_mod preview-background art/backgrounds/residential/street.png artifacts/street-repeat.html
+```
+
+The initial assets are opaque 1774×887 PNGs. All exceed 65,536 colors, and the street's opposing-edge RGB mean difference is 15.37/255, above the initial 12/255 heuristic. Treat them as visual prototypes, not certified seamless production pixel art. Point-sampled runtime scaling retains sharp sampling but does not create a deliberate low-resolution pixel grid. Subsequent revisions should simplify clusters and refine joins after an in-game comparison.
+
 Use the saved art prompt with OpenAI image generation, save each PNG candidate under an ignored `artifacts/` or `local/` directory, inspect it, then review four horizontal repeats. Preserve the prompt and generation settings alongside each candidate so another generation can be compared. These tools do not call an image-generation API or require a key; generation is a separate workflow step.
 
 The Python interface is:

@@ -1,0 +1,129 @@
+[
+  {
+    "schema_version": 1,
+    "path": "art\\backgrounds\\residential\\home.png",
+    "input_bytes": 2169847,
+    "sha256": "69f8cc3cbdede0287bd323298b70353693cd010d99692ff2b225628fe7c269e4",
+    "width": 1774,
+    "height": 887,
+    "mode": "RGB",
+    "structurally_valid": true,
+    "alpha": {
+      "has_alpha": false,
+      "transparent_pixels": 0,
+      "partial_pixels": 0,
+      "opaque_pixels": 1573538
+    },
+    "palette": {
+      "visible_colors": null,
+      "exact": false,
+      "rgba_counting_limit": 65536
+    },
+    "seam": {
+      "rgb_mean_absolute_difference": 30.264186,
+      "rgb_max_absolute_difference": 225,
+      "alpha_mean_absolute_difference": 0.0,
+      "alpha_max_absolute_difference": 0
+    },
+    "edge_strips": {
+      "width": 16,
+      "rgb_mean_absolute_difference": 29.728861,
+      "rgb_max_absolute_difference": 253,
+      "mean_color_absolute_difference": 9.557967
+    },
+    "diagnostic_thresholds": {
+      "seam_rgb_mean": 12,
+      "strip_rgb_mean": 24
+    },
+    "warnings": [
+      "Edge RGB mean difference exceeds the diagnostic threshold of 12/255.",
+      "Edge-strip RGB mean difference exceeds the diagnostic threshold of 24/255.",
+      "RGBA palette exceeds the counting limit; exact visible color count is unavailable."
+    ],
+    "interpretation": "Diagnostics only: low differences do not prove seamless repetition, style, or game compatibility."
+  },
+  {
+    "schema_version": 1,
+    "path": "art\\backgrounds\\residential\\street.png",
+    "input_bytes": 2210414,
+    "sha256": "162b86fcfe23796d9f0619e74bd7f6b09d787ddedbd593fddf745117f7329404",
+    "width": 1774,
+    "height": 887,
+    "mode": "RGB",
+    "structurally_valid": true,
+    "alpha": {
+      "has_alpha": false,
+      "transparent_pixels": 0,
+      "partial_pixels": 0,
+      "opaque_pixels": 1573538
+    },
+    "palette": {
+      "visible_colors": null,
+      "exact": false,
+      "rgba_counting_limit": 65536
+    },
+    "seam": {
+      "rgb_mean_absolute_difference": 15.36941,
+      "rgb_max_absolute_difference": 166,
+      "alpha_mean_absolute_difference": 0.0,
+      "alpha_max_absolute_difference": 0
+    },
+    "edge_strips": {
+      "width": 16,
+      "rgb_mean_absolute_difference": 16.465849,
+      "rgb_max_absolute_difference": 229,
+      "mean_color_absolute_difference": 5.615793
+    },
+    "diagnostic_thresholds": {
+      "seam_rgb_mean": 12,
+      "strip_rgb_mean": 24
+    },
+    "warnings": [
+      "Edge RGB mean difference exceeds the diagnostic threshold of 12/255.",
+      "RGBA palette exceeds the counting limit; exact visible color count is unavailable."
+    ],
+    "interpretation": "Diagnostics only: low differences do not prove seamless repetition, style, or game compatibility."
+  },
+  {
+    "schema_version": 1,
+    "path": "art\\backgrounds\\residential\\park.png",
+    "input_bytes": 2233136,
+    "sha256": "9f5ad4cb70e54df05afe5448457cde79010f0aafc358c0458020dfdb8e50e12c",
+    "width": 1774,
+    "height": 887,
+    "mode": "RGB",
+    "structurally_valid": true,
+    "alpha": {
+      "has_alpha": false,
+      "transparent_pixels": 0,
+      "partial_pixels": 0,
+      "opaque_pixels": 1573538
+    },
+    "palette": {
+      "visible_colors": null,
+      "exact": false,
+      "rgba_counting_limit": 65536
+    },
+    "seam": {
+      "rgb_mean_absolute_difference": 18.526118,
+      "rgb_max_absolute_difference": 196,
+      "alpha_mean_absolute_difference": 0.0,
+      "alpha_max_absolute_difference": 0
+    },
+    "edge_strips": {
+      "width": 16,
+      "rgb_mean_absolute_difference": 19.830562,
+      "rgb_max_absolute_difference": 248,
+      "mean_color_absolute_difference": 3.157929
+    },
+    "diagnostic_thresholds": {
+      "seam_rgb_mean": 12,
+      "strip_rgb_mean": 24
+    },
+    "warnings": [
+      "Edge RGB mean difference exceeds the diagnostic threshold of 12/255.",
+      "RGBA palette exceeds the counting limit; exact visible color count is unavailable."
+    ],
+    "interpretation": "Diagnostics only: low differences do not prove seamless repetition, style, or game compatibility."
+  }
+]

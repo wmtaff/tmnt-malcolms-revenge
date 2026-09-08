@@ -11,6 +11,20 @@ from PIL import Image
 
 
 class CliTests(unittest.TestCase):
+    def test_background_report_and_preview(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            image = Path(tmp) / 'tile.png'
+            output = Path(tmp) / 'repeat.html'
+            Image.new('RGB', (16, 8), 'navy').save(image)
+            result, report = self.run_cli('inspect-background', image)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(report['structurally_valid'])
+            result, report = self.run_cli('preview-background', image, output)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(output.exists())
+            result, report = self.run_cli('preview-background', image, output)
+            self.assertEqual(result.returncode, 2)
+
     def run_cli(self, *args):
         env = dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[1] / 'src'))
         result = subprocess.run([sys.executable, '-m', 'tmnt_mod', *map(str, args)],

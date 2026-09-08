@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_on": "2026-09-08",
+  "generator": "OpenAI built-in image generation",
+  "status": "prototype; not yet verified in game",
+  "direction": "Summer suburban house-to-community-park route. Light-pink siding, green lawns and trees, a small Foot Soldier encounter followed by Baxter Stockman.",
+  "references": "User-requested Street View observations informed architecture and park features; generated art contains no map UI. Native game environment art was viewed locally for style. Reference files and exact private location are not distributed.",
+  "processing": "Original generated PNG bytes preserved. Runtime scales with point sampling. No deterministic seam repair or palette reduction.",
+  "assets": [
+    {
+      "file": "home.png",
+      "role": "start",
+      "world_x": 4096,
+      "world_width": 800,
+      "world_height": 456,
+      "prompt": "Edit this game background tile. Keep the house architecture, white porch railings and stairs, two garage doors, road and sidewalk alignment, spruce trees and tiered stone wall, neighboring blue house, side-scrolling composition, pixel-art medium and2:1 rectangular aspect exactly as the reference. TWO PRIMARY CHANGES: all pale yellow siding on the main house becomes LIGHT PINK (soft dusty blush pink with darker mauve shadows, white trim unchanged); season becomes SUMMER with NO SNOW anywhere, lush green lawns, green broadleaf trees rather than yellow autumn leaves, vivid blue summer sky. Preserve recognizable architecture and landscaping. Empty dark lavender-gray asphalt combat road lower third. Maintain restrained cel shading and make pixels more deliberate and chunky to fit Teenage Mutant Ninja Turtles Shredder's Revenge environment sprites: hard block edges, limited color clusters, no soft painterly gradients. Keep left and right street/curb/lawn boundary heights identical so another tile can continue the road. No people, vehicles, text, address numbers, logos, UI, framing or watermarks. Render only the edited tile."
+    },
+    {
+      "file": "street.png",
+      "role": "repeatable middle",
+      "world_x": 4896,
+      "world_width": 768,
+      "world_height": 456,
+      "prompt": "Use case: stylized-concept. Generate one repeatable MIDDLE STREET background tile for a side-scrolling beat-em-up. Reference 1 is our summer pink-house start tile; reference 2 is our summer park end tile. Match their palette, framing and street height exactly, to connect between these two assets. Depict a quiet suburban Anchorage street in summer: spruce trees, green deciduous trees, lawns, small gray-blue detached houses set back, a modest low stone retaining wall. No pink main house or playground here. Crisp cel-shaded pixel art fitting Teenage Mutant Ninja Turtles Shredder's Revenge environments, chunky pixel clusters, restrained colors, dark purple outlines, two or three tones per surface, no soft gradients. Straight-on side-scrolling camera with slight downward ground view. Wide 2:1 rectangle. Curb and cream sidewalk at71percent height, dark lavender-gray asphalt completely clear across bottom26percent, sky vivid blue. Entire left and right edges must match for seamless horizontal repetition, including identical curb height, road colors and generic evergreen foliage at edges. Keep road empty of rocks or obstacles. No characters, cars, text, address numbers, logos, UI, frame, watermark or snow. Render ONLY the opaque tile."
+    },
+    {
+      "file": "park.png",
+      "role": "boss end",
+      "world_x": 5664,
+      "world_width": 800,
+      "world_height": 456,
+      "prompt": "Generate the PARK END SEGMENT of a matching side-scrolling pixel-art game background. The recent Google Street View screenshot of a neighborhood park is the LANDSCAPE/PLAYGROUND reference only; the recent generated LIGHT PINK HOUSE SUMMER tile is the STYLE, PALETTE, CAMERA AND EDGE-ALIGNMENT reference. New original illustration, no photographic map pixels. Recreate the small suburban Anchorage community park: gently rising green lawn with scattered rounded gray boulders, young deciduous trees on slender trunks, mature spruce at the sides, a small playground with yellow climbing rails, reddish supports, blue slides, pale gravel play surface; a few distant detached gray-blue houses beyond the green space. SUMMER only, lush greens, blue sky, no snow or autumn colors. Remove signs, people, cars, all map UI, Google logos, watermarks, addresses and readable text. The art is a 2:1 rectangular game tile matching the pink-house tile, crisp cel-shaded pixel-art clusters and dark purple/navy outlines, two or three tones per material, no painterly gradients or soft antialiasing. Camera straight-on side-scrolling, shallow downward ground view. Entire foreground bottom approximately26percent is completely clear dark lavender-gray ASPHALT combat road (match preceding pink-house tile's road exactly), with straight cream sidewalk/curb horizontal at approximately71percent canvas height and green lawn just behind. Do not put playground equipment, trees, rocks, furniture or enemies in the fighting road. Playground remains a distant backdrop behind the sidewalk. Left/right edges use generic spruce/lawn border and identical curb and road heights to connect to a middle street tile. Maintain same pixel density/lighting as pink-house tile. Render ONLY one opaque rectangular background tile; no labels, multi-panel sheet, frame or UI."
+    }
+  ]
+}
