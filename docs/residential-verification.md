@@ -8,7 +8,8 @@ Verified on 2026-09-08:
 - Launcher self-tests pass, including actual Harmony surrogate hooks, encounter checks, and background validation/fallback tests.
 - Separate residential synthetic tests pass transfer, rollback, route identity preflight, repeated reset, boss preservation, and decorative selectors.
 - Framework build and isolated staging succeed against the pinned installed game assemblies.
-- The playtest starts, installs residential hooks, and renders its introduction. Level traversal and boss victory are not yet verified.
+- All five GitHub CI jobs pass at `aa69f38` (four Python OS/version combinations and the Windows runtime job).
+- The playtest starts, installs residential hooks, and renders its introduction. The first live selection changed StageData but still loaded the cached Episode 1 scene. This exposed a redirect integration defect; house-to-park traversal and boss victory are not yet verified.
 
 Read-only native inspection confirms a straight camera waypoint path and floor tiles throughout world X4240..6455, Y352..455, with a wall at X6456. This supports the route but does not replace checking actor collision, dynamic objects, and camera behavior in play. The initial viewport could reveal unchanged scenery to the left of the replaced ground.
 
