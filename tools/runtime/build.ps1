@@ -1,11 +1,14 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$SourceGameDirectory,
-    [string]$PlaytestDirectory = (Join-Path $PSScriptRoot '../../local/playtest'),
-    [string]$DependencyDirectory = (Join-Path $PSScriptRoot '../../local/dependencies')
+    [string]$PlaytestDirectory,
+    [string]$DependencyDirectory
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+# Windows PowerShell 5.1 does not populate PSScriptRoot during parameter defaults.
+if (-not $PlaytestDirectory) { $PlaytestDirectory = Join-Path $PSScriptRoot '../../local/playtest' }
+if (-not $DependencyDirectory) { $DependencyDirectory = Join-Path $PSScriptRoot '../../local/dependencies' }
 
 # Canonicalize existing ancestors through file handles, including 8.3/subst aliases.
 Add-Type -TypeDefinition @'

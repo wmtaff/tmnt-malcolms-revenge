@@ -61,6 +61,21 @@ class RuntimeBuildTests(unittest.TestCase):
         self.reject(self.output, 'Unsupported game build')
         self.assertFalse(self.output.exists())
 
+    def test_default_directories_reach_game_validation(self):
+        # Run from a disposable script location so repository local state cannot
+        # change which preflight runs, and a regression cannot write repo output.
+        import shutil
+        script = self.root / 'tools/runtime/build.ps1'
+        script.parent.mkdir(parents=True)
+        shutil.copyfile(Path(__file__).resolve().parents[1] / 'tools/runtime/build.ps1', script)
+        result = subprocess.run([
+            'powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass',
+            '-File', str(script), '-SourceGameDirectory', str(self.source),
+        ], capture_output=True, text=True, timeout=15)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Unsupported game build', result.stdout + result.stderr)
+        self.assertFalse((self.root / 'local').exists())
+
     def test_unowned_nonempty_output_is_untouched(self):
         self.output.mkdir()
         (self.output / 'keep.txt').write_text('do not overwrite')
