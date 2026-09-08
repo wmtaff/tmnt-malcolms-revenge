@@ -5,6 +5,20 @@ using HarmonyLib;
 namespace Malcolm.Runtime {
 public static partial class RuntimeLauncher {
     private static void SelfTest() {
+        RuntimeOptions options = RuntimeOptions.Parse(new string[] { "game", "output.log", "--baseline" });
+        if (!options.Baseline || options.EncounterPath != null) throw new Exception("Baseline CLI wrong");
+        options = RuntimeOptions.Parse(new string[] { "game", "output.log", "--encounter", "encounter.json" });
+        if (options.Baseline || options.EncounterPath != "encounter.json") throw new Exception("Encounter CLI wrong");
+        foreach (string[] bad in new string[][] {
+            new string[] { "game", "output.log" },
+            new string[] { "game", "output.log", "--encounter" },
+            new string[] { "game", "output.log", "--baseline", "--encounter", "x.json" },
+            new string[] { "game", "output.log", "--unknown" }
+        }) {
+            bool invalid = false;
+            try { RuntimeOptions.Parse(bad); } catch (ArgumentException) { invalid = true; }
+            if (!invalid) throw new Exception("Ambiguous CLI accepted");
+        }
         string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "malcolm-output-test-" + Guid.NewGuid().ToString("N"));
         System.IO.Directory.CreateDirectory(temp);
         string existing = System.IO.Path.Combine(temp, "existing.log");
