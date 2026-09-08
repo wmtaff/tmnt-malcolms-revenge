@@ -11,6 +11,13 @@ public static partial class RuntimeLauncher {
             if (bytes.Length != 62 || bytes[0] != 66 || bytes[1] != 77 || bytes[54] != 0 || bytes[56] != 255 || bytes[57] != 255 || bytes[59] != 0)
                 throw new Exception("BMP header or RGB channel conversion wrong");
         }
+        using (var large = new System.IO.MemoryStream()) {
+            WriteBitmap(large, new byte[3440 * 1440 * 4], 3440, 1440);
+            if (large.Length != 54L + 3440L * 1440 * 3 || large.Length > 32L * 1024 * 1024) throw new Exception("Ultrawide capture size wrong");
+        }
+        bool rejected = false;
+        try { WriteBitmap(System.IO.Stream.Null, new byte[0], 3841, 2160); } catch (ArgumentException) { rejected = true; }
+        if (!rejected) throw new Exception("Oversized capture accepted");
         var h = new Harmony("malcolm.runtime.selftest");
         MethodInfo target = typeof(Surrogate).GetMethod("Save");
         h.Patch(target, prefix: new HarmonyMethod(typeof(RuntimeLauncher).GetMethod("SuppressWrite", BindingFlags.Static | BindingFlags.NonPublic)));
@@ -51,6 +58,7 @@ public static partial class RuntimeLauncher {
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }
     }
 }}
+
 
 
 

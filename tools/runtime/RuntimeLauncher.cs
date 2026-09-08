@@ -78,7 +78,7 @@ public static partial class RuntimeLauncher {
             int width = Convert.ToInt32(Property(parameters, "BackBufferWidth"));
             int height = Convert.ToInt32(Property(parameters, "BackBufferHeight"));
             if (width <= 0 || height <= 0 || width > 3840 || height > 2160) throw new InvalidOperationException("Backbuffer outside capture bound");
-            if (54L + (((width * 3 + 3) & ~3) * (long)height) > 8L * 1024 * 1024) throw new InvalidOperationException("Capture exceeds 8 MiB file limit");
+            if (54L + (((width * 3 + 3) & ~3) * (long)height) > 32L * 1024 * 1024) throw new InvalidOperationException("Capture exceeds 32 MiB file limit");
             string format = Convert.ToString(Property(parameters, "BackBufferFormat"));
             if (format != "Color") throw new InvalidOperationException("Unsupported backbuffer format " + format);
             byte[] pixels = new byte[checked(width * height * 4)];
@@ -224,6 +224,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 
