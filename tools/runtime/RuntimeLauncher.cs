@@ -8,6 +8,7 @@ public static partial class RuntimeLauncher {
     private static string gameDirectory;
     private static string logFile;
     private static bool baseline;
+    private static readonly System.Collections.Generic.HashSet<string> exceptionKeys = new System.Collections.Generic.HashSet<string>();
     private static readonly object logLock = new object();
     [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
     private static extern bool SetDllDirectory(string directory);
@@ -25,6 +26,7 @@ public static partial class RuntimeLauncher {
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
             Directory.SetCurrentDirectory(gameDirectory);
             if (!SetDllDirectory(gameDirectory)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+            AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e) { TraceStartupException(e.Exception); };
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
             AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) { Log("UNHANDLED " + e.ExceptionObject); };
             Assembly engine = Assembly.LoadFrom(Path.Combine(gameDirectory, "ParisEngine.dll"));
@@ -50,6 +52,19 @@ public static partial class RuntimeLauncher {
             Console.Error.WriteLine(error);
             return 1;
         }
+    }
+    private static void TraceStartupException(Exception error) {
+        string type = error.GetType().FullName;
+        if (!(error is ReflectionTypeLoadException) && !(error is FileNotFoundException) && !(error is DllNotFoundException) && type.IndexOf("ContentLoadException", StringComparison.Ordinal) < 0) return;
+        string key = type + ":" + error.Message;
+        lock (exceptionKeys) {
+            if (exceptionKeys.Count >= 100 || !exceptionKeys.Add(key)) return;
+        }
+        try {
+            Log("FIRST_CHANCE " + error);
+            var load = error as ReflectionTypeLoadException;
+            if (load != null) foreach (Exception loader in load.LoaderExceptions) if (loader != null) Log("LOADER_EXCEPTION " + loader);
+        } catch { /* Diagnostics must never replace the exception being diagnosed. */ }
     }
     private static Assembly ResolveAssembly(object sender, ResolveEventArgs args) {
         string name = new AssemblyName(args.Name).Name;
@@ -126,5 +141,6 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
