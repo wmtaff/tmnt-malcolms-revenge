@@ -130,7 +130,7 @@ foreach ($name in $expected.Keys) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $source 'Content') -PathType Container)) { throw 'Source Content directory is missing.' }
 $compiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$launcherSources = @((Join-Path $PSScriptRoot '../RuntimeLauncher.cs'), (Join-Path $PSScriptRoot '../RuntimeLauncherTests.cs'))
+$launcherSources = @((Join-Path $PSScriptRoot 'RuntimeLauncher.cs'), (Join-Path $PSScriptRoot 'RuntimeLauncherTests.cs'))
 foreach ($required in @($compiler) + $launcherSources) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required build input missing: $required" }
 }
