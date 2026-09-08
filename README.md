@@ -2,7 +2,11 @@
 
 A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: Shredder's Revenge, with a reusable AI-assisted sprite pipeline.
 
-**Status:** first runtime spawn change verified. A source-built launcher starts the supported Steam build in a separate playtest copy and suppresses save writes. Live Episode 1 logs confirm one identified Foot Soldier moved from X=483 to X=563 during reset, and gameplay renders successfully. The tools also inspect local files and validate sprites. There is no playable custom level, image-generation adapter, or game-ready sprite exporter yet.
+**Status:** a summer suburban level prototype now renders generated house, street, and park backgrounds in an isolated playtest using the native Baxter stage. Live logs confirm scene redirection, background rendering, and progression into the native boss fight. Combat gating and boss victory remain under verification. A reusable OpenAI generation-and-review workflow saves prompts and validates background candidates; no game-ready custom-character exporter exists yet.
+
+See [summer prototype verification](docs/residential-verification.md), [background workflow](docs/background-pipeline.md), and [continuous Street View route generation issue](https://github.com/wmtaff/tmnt-malcolms-revenge/issues/1).
+
+The next milestone is [custom playable character support](docs/custom-player-plan.md): export the native animation contract, prove an existing-slot artwork replacement, then expand to complete animation coverage and optionally a new roster identity.
 
 See [runtime build and launch instructions](docs/runtime-build.md) and [verification evidence](docs/runtime-verification.md).
 
