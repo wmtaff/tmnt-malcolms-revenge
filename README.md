@@ -6,7 +6,7 @@ A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: S
 
 See [runtime build and launch instructions](docs/runtime-build.md) and [verification evidence](docs/runtime-verification.md).
 
-The next prototype is implemented as a [configurable three-wave encounter](docs/encounter-prototype.md), with [Start/Status/Stop controls](docs/playtest-controls.md). Its configuration and edit logic pass synthetic tests, but its own live playtest is pending: Microsoft Defender blocked the newly compiled combined runtime executable locally. The earlier single-enemy proof remains the only gameplay-verified modification.
+The [configurable three-wave encounter](docs/encounter-prototype.md) is now verified in live Episode 1 gameplay, with [Start/Status/Stop controls](docs/playtest-controls.md). Logs confirmed all three configured enemy positions and progression into the unchanged fourth native wave; the user defeated the first three enemies. This is an encounter prototype inside the existing episode, not a complete custom level.
 
 ## Quick start
 
