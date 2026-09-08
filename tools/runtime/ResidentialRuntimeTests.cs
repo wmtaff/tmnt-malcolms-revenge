@@ -42,6 +42,11 @@ internal static class ResidentialRuntimeTests {
   routeApply.Invoke(null,new object[]{camera});routeApply.Invoke(null,new object[]{camera});
   if(camera._camBlocks.Count!=1||camera._camBlocks[0]!=bossBlock||!(bool)trigger.Invoke(null,new object[]{bossBlock}))throw new Exception("Boss route was removed");
   foreach(string id in routeIds){var b=(RouteBlock)route.Actors[new Guid(id)].GameObject;if(!b.DebugDisabled||b.EndCalls!=1||(bool)trigger.Invoke(null,new object[]{b}))throw new Exception("Route skip or idempotency failed");}
-  Console.WriteLine("RESIDENTIAL_SELF_TEST_PASS transfer rollback route preflight idempotency boss preservation");return 0;
+  string path="2d/Level/Playfield/Stage/Stage_12/Level_12_art",animated="Paris.Engine.GameObject.BasicAnimatedGameObject";
+  Guid heart=new Guid("a2e7cd01-43cc-4573-bb12-209f40ad9b75");
+  if(ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Heart03",path)||!ResidentialRuntime.ShouldRenderDecoration(animated,Guid.NewGuid(),"Heart03",path)||!ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Heart03","another/scene")||!ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Wrong",path)||!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.BasicShadowAnimatedGameObject",heart,"Heart03",path))throw new Exception("Decoration exact selector failed");
+  if(!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.BasicShadowAnimatedGameObject",new Guid("d09c60ed-39ca-401c-ab0c-3d090c50d91a"),"CutsceneBaxter",path)||!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.TextureGameObject",new Guid("0b1d668c-f0fa-4ec2-a90f-dbe122c9c83d"),"BG_Ground02",path))throw new Exception("Boss actor or replacement ground hidden");
+  if(ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.TextureGameObject",new Guid("a0bc8949-605f-4fca-aa46-92d0f17baffb"),"BG_OL07",path))throw new Exception("Static decoration retained");
+  Console.WriteLine("RESIDENTIAL_SELF_TEST_PASS transfer rollback route preflight idempotency boss preservation decorative selectors");return 0;
  }catch(Exception e){Console.Error.WriteLine(e);return 1;}}
 }}

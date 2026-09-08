@@ -19,6 +19,8 @@ internal static class ResidentialRuntime {
     private static readonly float[] OldX={5392,5464,5536};
     private static readonly float[] NewX={6096,6152,6208};
     private static readonly string[] RouteIds={"045e4b20-04bf-46d1-8d58-bb90a6582bac","f30a3cb8-3e82-481f-b3c9-b6b6c80c16d9","3befdc61-fe75-41c9-adf0-98d859493d4d","05633fe4-05fc-479b-942c-c73d9bc43d0f","e44cc08a-8d79-4130-929c-69ffe2a268f5","7030b144-5e4e-4716-99d5-199e0d206d8c"};
+    private static readonly string[] DecorationIds={"c8ba32a7-8084-43a9-bead-f5615318b201","a2e7cd01-43cc-4573-bb12-209f40ad9b75","575945ad-844c-4082-b491-26ef01480dd2","85449ff4-c482-43f0-a319-c16011016b7e","ed787bbf-c0a9-46ad-b019-c11db8ea97e0","9e622a27-212b-40e8-8e84-c6a015d785ed","e9fea365-7a6f-4d01-a15f-3f24b523826e","7aa6f2c1-35a9-4107-bb30-e73f464fa828","a0bc8949-605f-4fca-aa46-92d0f17baffb","3b378bc1-6412-47f1-b658-a69f524ecd3f"};
+    private static readonly string[] DecorationNames={"BG_06","Heart03","Heart04","Heart05","Sludge","BG_BaxtersChair","BaxterControls","Krang","BG_OL07","BG_OL08"};
     private const BindingFlags Flags=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.Static;
     internal static void Install(Harmony harmony,Assembly gameAssembly,Assembly engineAssembly,Action<string> logger) {
         game=gameAssembly;engine=engineAssembly;log=logger;
@@ -26,6 +28,10 @@ internal static class ResidentialRuntime {
         Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("PostReset",Flags),"PrepareBoss");
         Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("TriggerBlock",Flags),"AllowTrigger");
         harmony.Patch(game.GetType("Paris.Game.Actor.Camera.BeatEmUpCamera",true).GetMethod("Reset",Flags),null,new HarmonyMethod(typeof(ResidentialRuntime),"PrepareRoute"));
+        Type decorative=engine.GetType("Paris.Engine.GameObject.BasicAnimatedGameObject",true);
+        Patch(harmony,decorative.GetMethod("Render",Flags|BindingFlags.DeclaredOnly),"RenderDecoration");
+        Patch(harmony,decorative.GetMethod("RenderFlat",Flags|BindingFlags.DeclaredOnly),"RenderDecoration");
+        Patch(harmony,engine.GetType("Paris.Engine.GameObject.TextureGameObject",true).GetMethod("Render",Flags|BindingFlags.DeclaredOnly),"RenderDecoration");
         log("RESIDENTIAL_READY Episode1 routes to native Stage12 boss approach");
     }
     private static void Patch(Harmony harmony,MethodInfo method,string prefix) {
@@ -40,6 +46,20 @@ internal static class ResidentialRuntime {
     private static object Vector(Type type,float x,float y,float z){object result=Activator.CreateInstance(type);type.GetField("X").SetValue(result,x);type.GetField("Y").SetValue(result,y);type.GetField("Z").SetValue(result,z);return result;}
     private static bool PositionIs(object p,float x,float y,float z){return (float)p.GetType().GetField("X").GetValue(p)==x&&(float)p.GetType().GetField("Y").GetValue(p)==y&&(float)p.GetType().GetField("Z").GetValue(p)==z;}
     private static bool HasScene(object stage,string wanted){if(stage==null)return false;foreach(object path in (IEnumerable)Get(stage,"ScenePaths"))if(Norm(path)==wanted)return true;return false;}
+    internal static bool ShouldRenderDecoration(string typeName,Guid id,string name,string playfield) {
+        if(Norm(playfield)!=Playfield12)return true;
+        for(int i=0;i<DecorationIds.Length;i++) {
+            string expectedType=i<8?"Paris.Engine.GameObject.BasicAnimatedGameObject":"Paris.Engine.GameObject.TextureGameObject";
+            if(typeName==expectedType&&new Guid(DecorationIds[i])==id&&DecorationNames[i]==name)return false;
+        }
+        return true;
+    }
+    private static bool RenderDecoration(object __instance) {
+        // Rendering alone is suppressed. Native animation ticks, cutscene messages,
+        // activation state and collision remain intact, including Baxter controls.
+        object scene=Get(__instance,"Scene");if(scene==null)return true;
+        return ShouldRenderDecoration(__instance.GetType().FullName,(Guid)Get(__instance,"Id"),Convert.ToString(Get(__instance,"Name")),Convert.ToString(Get(scene,"PlayfieldPath")));
+    }
     private static void SelectStage(object[] __args) {
         if(!HasScene(__args[0],Scene1)) {
             if(previousForcedSpawn!=null && !HasScene(__args[0],Scene12)) {

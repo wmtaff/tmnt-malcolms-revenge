@@ -43,6 +43,15 @@ animation dependencies. Moving only the boss into an unrelated scene is therefor
 not an equivalent substitute. IsBossDeathCompleted is available for verification;
 retain the native death and level completion logic.
 
+The residential renderer excludes ten exact native decorative objects by scene,
+runtime type, ID, and name. Animated exclusions are BG_06, Heart03, Heart04,
+Heart05, Sludge, BG_BaxtersChair, BaxterControls, and Krang. Static exclusions
+are BG_OL07 and BG_OL08. Only Render/RenderFlat are skipped: their animation
+updates, messages, activation, and collision remain intact. CutsceneBaxter and
+CutsceneBuzzer remain visible, as do Baxter and all laser actors. Hiding the chair
+and controls may leave native cutscene poses visually incongruous with the park;
+the native introduction is intentionally preserved for runtime verification.
+
 `ResidentialRuntimeTests.cs` is a separate synthetic runner, **not a launcher
 source input**. Its native-shaped stand-ins verify actor transfer, wave insertion,
 and rollback on insertion failure. It also verifies route identity preflight,
