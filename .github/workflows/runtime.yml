@@ -23,8 +23,14 @@ jobs:
             [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $output '0Harmony.dll'))
           } finally { $archive.Dispose() }
           $launcher = Join-Path $output 'Malcolm.Runtime.exe'
-          $sources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs') | ForEach-Object { (Resolve-Path "tools/runtime/$_").Path }
+          $sources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs','ResidentialRuntime.cs','BackgroundRuntime.cs') | ForEach-Object { (Resolve-Path "tools/runtime/$_").Path }
           & C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /nologo /platform:x64 /target:exe /reference:System.Web.Extensions.dll "/reference:$output/0Harmony.dll" "/out:$launcher" $sources
           if ($LASTEXITCODE -ne 0) { throw 'Runtime compilation failed' }
           & $launcher --self-test
           if ($LASTEXITCODE -ne 0) { throw 'Runtime self-test failed' }
+          $residentialTests = Join-Path $output 'Residential.Tests.exe'
+          $testSources = @('ResidentialRuntime.cs','ResidentialRuntimeTests.cs') | ForEach-Object { (Resolve-Path "tools/runtime/$_").Path }
+          & C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /nologo /platform:x64 /target:exe /main:Malcolm.Runtime.ResidentialRuntimeTests "/reference:$output/0Harmony.dll" "/out:$residentialTests" $testSources
+          if ($LASTEXITCODE -ne 0) { throw 'Residential test compilation failed' }
+          & $residentialTests
+          if ($LASTEXITCODE -ne 0) { throw 'Residential self-test failed' }

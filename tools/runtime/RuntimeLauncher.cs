@@ -27,7 +27,8 @@ public static partial class RuntimeLauncher {
             gameDirectory = Path.GetFullPath(options.GameDirectory);
             logFile = Path.GetFullPath(options.LogPath);
             baseline = options.Baseline;
-            if (!baseline) encounter = EncounterConfig.Load(Path.GetFullPath(options.EncounterPath));
+            encounter = options.EncounterPath == null ? null : EncounterConfig.Load(Path.GetFullPath(options.EncounterPath));
+            string residentialDirectory = options.ResidentialDirectory == null ? null : Path.GetFullPath(options.ResidentialDirectory);
 
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
             ValidatePlaytest(gameDirectory);
@@ -51,7 +52,13 @@ public static partial class RuntimeLauncher {
             Type scene = RequireType(engine, "Paris.Engine.Scene.Scene2d");
             Patch(harmony, RequireMethod(scene, "Load", 0), "SceneBegin", "SceneEnd");
             Patch(harmony, RequireMethod(scene, "LoadPlayfield", 0), "SceneBegin", "SceneEnd");
-            InstallEncounterPatch(harmony, game);
+            if (residentialDirectory != null) {
+                BackgroundRuntime.Configure(engine, residentialDirectory, Log);
+                ResidentialRuntime.Install(harmony, game, engine, Log);
+                Type textureObject = RequireType(engine, "Paris.Engine.GameObject.TextureGameObject");
+                Patch(harmony, RequireMethod(textureObject, "Render", 0), "RenderResidentialBackground", null);
+                Log("RESIDENTIAL_HOOKS_READY art=" + residentialDirectory);
+            } else InstallEncounterPatch(harmony, game);
             InstallRenderDiagnostics(harmony);
             MethodInfo main = RequireMethod(RequireType(game, "Paris.Program"), "Main", 1);
             Log("HOOKS_READY entering Paris.Program.Main");
@@ -62,8 +69,13 @@ public static partial class RuntimeLauncher {
             Log("FATAL " + error);
             Console.Error.WriteLine(error);
             return 1;
+        } finally {
+            BackgroundRuntime.Dispose();
+            if (captureStream != null) { captureStream.Dispose(); captureStream = null; }
+            if (logWriter != null) { logWriter.Dispose(); logWriter = null; }
         }
     }
+    private static bool RenderResidentialBackground(object __instance) { return BackgroundRuntime.TryRender(__instance); }
     private static void AssertDiagnosticPath(string path, string extension) {
         if (!String.Equals(Path.GetExtension(path), extension, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Diagnostic file must end in " + extension);
         if (File.Exists(path) || Directory.Exists(path)) throw new InvalidOperationException("Diagnostic path already exists; choose a fresh filename: " + path);

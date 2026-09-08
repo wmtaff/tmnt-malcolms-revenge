@@ -5,13 +5,14 @@ param(
     [string]$ArtifactsDirectory,
     [switch]$Baseline,
     [string]$Encounter,
+    [string]$Residential,
     [switch]$Capture
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if (-not $PlaytestDirectory) { $PlaytestDirectory = Join-Path $PSScriptRoot '../../local/playtest' }
 if (-not $ArtifactsDirectory) { $ArtifactsDirectory = Join-Path $PSScriptRoot '../../artifacts' }
-if ($Baseline -and $Encounter) { throw 'Baseline and Encounter are mutually exclusive.' }
+if (([int][bool]$Baseline + [int][bool]$Encounter + [int][bool]$Residential) -gt 1) { throw 'Baseline, Encounter, and Residential are mutually exclusive.' }
 
 function Assert-PlainPath([string]$Path) {
     $full = [IO.Path]::GetFullPath($Path)
@@ -72,7 +73,15 @@ if ($Action -ne 'Start' -and -not (Test-Path -LiteralPath $sessionPath)) {
     exit 0
 }
 $executable = Assert-OwnedStage $stage
-if ($Action -eq 'Start' -and -not $Baseline) {
+if ($Action -eq 'Start' -and $Residential) {
+    $Residential = Assert-PlainPath $Residential
+    if (-not (Test-Path -LiteralPath $Residential -PathType Container)) { throw "Residential art directory missing: $Residential" }
+    foreach ($name in @('home.png', 'street.png', 'park.png')) {
+        $art = Assert-PlainPath (Join-Path $Residential $name)
+        if (-not (Test-Path -LiteralPath $art -PathType Leaf)) { throw "Residential art missing: $art" }
+    }
+}
+if ($Action -eq 'Start' -and -not $Baseline -and -not $Residential) {
     if (-not $Encounter) { $Encounter = Join-Path $PSScriptRoot '../../encounters/episode1-lobby.json' }
     $Encounter = Assert-PlainPath $Encounter
     if (-not (Test-Path -LiteralPath $Encounter -PathType Leaf)) { throw "Encounter configuration missing: $Encounter" }
@@ -116,7 +125,7 @@ $log = Join-Path $artifacts ($id + '.log')
 $bitmap = $null
 if ($Capture) { $bitmap = Join-Path $artifacts ($id + '.bmp') }
 $arguments = @($stage, $log)
-if ($Baseline) { $arguments += '--baseline' } else { $arguments += @('--encounter', $Encounter) }
+if ($Baseline) { $arguments += '--baseline' } elseif ($Residential) { $arguments += @('--residential', $Residential) } else { $arguments += @('--encounter', $Encounter) }
 $serialized = ($arguments | ForEach-Object { Quote-WindowsArgument $_ }) -join ' '
 # CreateNew prevents concurrent launches from overwriting the active identity.
 $stream = [IO.File]::Open($sessionPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
@@ -129,7 +138,7 @@ try {
         schemaVersion = 1; owner = 'malcolm-playtest-controls'; pid = $child.Id
         startTimeUtcTicks = $child.StartTime.ToUniversalTime().Ticks.ToString()
         executable = $executable; log = $log; capture = $bitmap
-        baseline = [bool]$Baseline; encounter = $Encounter
+        baseline = [bool]$Baseline; encounter = $Encounter; residential = $Residential
     }
     $bytes = [Text.Encoding]::UTF8.GetBytes(($record | ConvertTo-Json))
     $stream.Write($bytes, 0, $bytes.Length)

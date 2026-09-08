@@ -9,11 +9,17 @@ public static partial class RuntimeLauncher {
         if (!options.Baseline || options.EncounterPath != null) throw new Exception("Baseline CLI wrong");
         options = RuntimeOptions.Parse(new string[] { "game", "output.log", "--encounter", "encounter.json" });
         if (options.Baseline || options.EncounterPath != "encounter.json") throw new Exception("Encounter CLI wrong");
+        options = RuntimeOptions.Parse(new string[] { "game", "output.log", "--residential", "art directory" });
+        if (options.Baseline || options.EncounterPath != null || options.ResidentialDirectory != "art directory") throw new Exception("Residential CLI wrong");
         foreach (string[] bad in new string[][] {
             new string[] { "game", "output.log" },
             new string[] { "game", "output.log", "--encounter" },
             new string[] { "game", "output.log", "--baseline", "--encounter", "x.json" },
             new string[] { "game", "output.log", "--unknown" }
+            ,new string[] { "game", "output.log", "--residential" }
+            ,new string[] { "game", "output.log", "--residential", " " }
+            ,new string[] { "game", "output.log", "--baseline", "--residential", "art" }
+            ,new string[] { "game", "output.log", "--encounter", "x.json", "--residential", "art" }
         }) {
             bool invalid = false;
             try { RuntimeOptions.Parse(bad); } catch (ArgumentException) { invalid = true; }
@@ -58,6 +64,14 @@ public static partial class RuntimeLauncher {
         if (s.Writes != 1) throw new Exception("Unpatch restore failed");
         EncounterConfigTests.Run();
         EncounterRuntimeTests.Run();
+        BackgroundRuntime.SelfTest();
+        var renderHarmony = new Harmony("malcolm.runtime.background.selftest");
+        try {
+            Patch(renderHarmony, RequireMethod(typeof(RenderSurrogate), "Render", 0), "RenderResidentialBackground", null);
+            var rendered = new RenderSurrogate();
+            rendered.Render();
+            if (rendered.Calls != 1) throw new Exception("Unconfigured background hook suppressed native rendering");
+        } finally { renderHarmony.UnpatchAll("malcolm.runtime.background.selftest"); }
         Console.WriteLine("SELF_TEST_PASS save suppressed and original restored");
     }
     public struct TestVector { public float X, Y, Z; public TestVector(float x, float y, float z) { X=x;Y=y;Z=z; } }
@@ -67,6 +81,10 @@ public static partial class RuntimeLauncher {
         public TestEnemy(){Id=new Guid("6f229aef-a56f-4457-b5a0-60d158b48fb1");Name="FootSoldierRegular_202";Scene=new TestScene();InitialPosition=new TestVector(483,228,0);}
     }
     public sealed class InheritedSurrogate : Surrogate { }
+    public sealed class RenderSurrogate {
+        public int Calls;
+        [MethodImpl(MethodImplOptions.NoInlining)] public void Render() { Calls++; }
+    }
     public class Surrogate {
         public int Writes;
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }

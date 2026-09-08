@@ -142,8 +142,9 @@ foreach ($name in $expected.Keys) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $source 'Content') -PathType Container)) { throw 'Source Content directory is missing.' }
 $compiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$launcherSources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
-foreach ($required in @($compiler) + $launcherSources) {
+$launcherSources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs','ResidentialRuntime.cs','BackgroundRuntime.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+$residentialTestSources = @('ResidentialRuntime.cs','ResidentialRuntimeTests.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+foreach ($required in @($compiler) + $launcherSources + $residentialTestSources) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required build input missing: $required" }
 }
 
@@ -171,6 +172,17 @@ try {
     if ([IO.File]::Exists($harmony)) { [IO.File]::Delete($harmony) }
     [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $harmony)
 } finally { $archive.Dispose() }
+
+# Keep surrogate Paris.* types out of the actual launcher assembly.
+$residentialTests = Join-Path $libraryDirectory ([Guid]::NewGuid().ToString() + '.exe')
+try {
+    & $compiler /nologo /platform:x64 /target:exe /main:Malcolm.Runtime.ResidentialRuntimeTests "/reference:$harmony" "/out:$residentialTests" $residentialTestSources
+    if ($LASTEXITCODE -ne 0) { throw 'Residential test compilation failed.' }
+    & $residentialTests
+    if ($LASTEXITCODE -ne 0) { throw 'Residential self-test failed.' }
+} finally {
+    if ([IO.File]::Exists($residentialTests)) { [IO.File]::Delete($residentialTests) }
+}
 
 [IO.Directory]::CreateDirectory($destination) | Out-Null
 $markerTemp = Join-Path $dependencies ([Guid]::NewGuid().ToString() + '.json')

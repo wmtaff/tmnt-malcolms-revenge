@@ -60,6 +60,18 @@ Thread.Sleep(10000);
         self.assertIn('exclusive', result.stderr)
         self.assertFalse(self.artifacts.exists())
 
+    def test_residential_is_exclusive_and_requires_all_three_images(self):
+        self.own_stage()
+        art = self.root / 'art'
+        art.mkdir()
+        result = self.invoke('Start', '-Baseline', '-Residential', str(art))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('exclusive', result.stderr)
+        result = self.invoke('Start', '-Residential', str(art))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Residential art missing', result.stderr)
+        self.assertFalse(self.artifacts.exists())
+
     def test_status_without_session_does_not_write(self):
         result = self.invoke('Status')
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -94,10 +106,16 @@ Thread.Sleep(10000);
         (self.stage / 'Malcolm.Runtime.exe').write_bytes(self.surrogate.read_bytes())
         self.addCleanup(lambda: self.invoke('Stop'))
         previous_log = None
-        for iteration in range(2):
+        for iteration in range(3):
             config = self.root / 'encounter with spaces.json'
             config.write_text('{}')
             options = ['-Baseline'] if iteration == 0 else ['-Encounter', str(config)]
+            art = self.root / 'residential art'
+            if iteration == 2:
+                art.mkdir()
+                for name in ('home.png', 'street.png', 'park.png'):
+                    (art / name).write_bytes(b'fixture files; actual PNG validation belongs to launcher')
+                options = ['-Residential', str(art)]
             result = self.invoke('Start', *options, '-Capture')
             self.assertEqual(result.returncode, 0, result.stderr)
             session = json.loads((self.artifacts / 'playtest-session.json').read_text())
@@ -111,9 +129,12 @@ Thread.Sleep(10000);
             # Windows CI may supply an 8.3 TEMP alias; the launcher expands it.
             self.assertTrue(os.path.samefile(received[0], self.stage))
             self.assertTrue(os.path.samefile(received[1], log))
-            self.assertEqual(received[2], '--baseline' if iteration == 0 else '--encounter')
+            self.assertEqual(received[2], ('--baseline', '--encounter', '--residential')[iteration])
             if iteration == 1:
                 self.assertTrue(os.path.samefile(received[3], config))
+            if iteration == 2:
+                self.assertTrue(os.path.samefile(received[3], art))
+                self.assertTrue(os.path.samefile(session['residential'], art))
             self.assertEqual(Path(str(log) + '.capture').read_text(), session['capture'])
             self.assertNotEqual(str(log), previous_log)
             self.assertIn('running', self.invoke('Status').stdout)
