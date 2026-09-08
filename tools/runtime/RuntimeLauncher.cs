@@ -99,7 +99,7 @@ public static partial class RuntimeLauncher {
     private static void EncounterBegin(object __instance, out bool __state) {
         __state = false;
         string scene = NormalizeScene(Property(__instance, "Scene"));
-        if (scene != "2d/level/scene2d/stage/stage_01/level_01_complete") return;
+        if (scene != "2d/level/playfield/stage/stage_01/level_01_art") return;
         string name = Convert.ToString(Property(__instance, "Name"));
         object position = Property(__instance, "InitialPosition");
         Log("ENEMY_RESET name=" + name + " scene=" + scene + " initial=" + position);
@@ -126,4 +126,5 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 

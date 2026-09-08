@@ -23,7 +23,7 @@ public static partial class RuntimeLauncher {
         if (matched || enemy.InitialPosition.X != 483) throw new Exception("Wrong object mutated");
         enemy.Name = "FootSoldierRegular_202"; enemy.Scene.PlayfieldPath = "other"; EncounterBegin(enemy, out matched);
         if (matched || enemy.InitialPosition.X != 483) throw new Exception("Wrong scene mutated");
-        enemy.Scene.PlayfieldPath = "2d\\Level\\Scene2d\\Stage\\Stage_01\\Level_01_complete";
+        enemy.Scene.PlayfieldPath = "2d\\Level\\Playfield\\Stage\\Stage_01\\Level_01_art";
         EncounterBegin(enemy, out matched);
         if (!matched || enemy.InitialPosition.X != 563) throw new Exception("Target not shifted");
         EncounterBegin(enemy, out matched);
@@ -31,7 +31,7 @@ public static partial class RuntimeLauncher {
         Console.WriteLine("SELF_TEST_PASS save suppressed and original restored");
     }
     public struct TestVector { public float X, Y, Z; public TestVector(float x, float y, float z) { X=x;Y=y;Z=z; } }
-    public sealed class TestScene { public string PlayfieldPath {get;set;} public TestScene(){PlayfieldPath="2d\\Level\\Scene2d\\Stage\\Stage_01\\Level_01_complete";} }
+    public sealed class TestScene { public string PlayfieldPath {get;set;} public TestScene(){PlayfieldPath="2d\\Level\\Playfield\\Stage\\Stage_01\\Level_01_art";} }
     public sealed class TestEnemy {
         public string Name {get;set;} public TestScene Scene {get;set;} public TestVector InitialPosition {get;set;}
         public TestEnemy(){Name="FootSoldierRegular_202";Scene=new TestScene();InitialPosition=new TestVector(483,228,0);}
@@ -42,6 +42,7 @@ public static partial class RuntimeLauncher {
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }
     }
 }}
+
 
 
 
