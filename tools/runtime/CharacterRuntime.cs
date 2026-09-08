@@ -9,13 +9,16 @@ namespace Malcolm.Runtime {
     internal static class CharacterRuntime {
         private const BindingFlags InstanceFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         private static Action<string> log;
+        private static string displayName;
         private static FieldInfo selectedField, nameField;
         private static PropertyInfo overrideProperty;
         private static readonly HashSet<object> reportedPanels = new HashSet<object>();
         private static readonly HashSet<object> reportedPlayers = new HashSet<object>();
 
-        internal static void Install(Harmony harmony, Assembly game, Assembly engine, string artDirectory, Action<string> logger) {
+        internal static void Install(Harmony harmony, Assembly game, Assembly engine, string artDirectory, string validatedDisplayName, Action<string> logger) {
             if (harmony == null || game == null || engine == null || logger == null) throw new ArgumentNullException("Character runtime dependencies");
+            if (String.IsNullOrWhiteSpace(validatedDisplayName)) throw new ArgumentException("Character display name is required");
+            foreach (char value in validatedDisplayName) if (Char.IsControl(value)) throw new ArgumentException("Character display name cannot contain controls");
             if (String.IsNullOrWhiteSpace(artDirectory) || !Directory.Exists(artDirectory)) throw new DirectoryNotFoundException("Malcolm art directory is required");
             Type panel = game.GetType("Paris.Game.Menu.CharacterSelectionPanel", true);
             Type player = game.GetType("Paris.Game.Actor.Player", true);
@@ -31,9 +34,10 @@ namespace Malcolm.Runtime {
             if (update == null || load == null || update.ReturnType != typeof(void) || load.ReturnType != typeof(void))
                 throw new MissingMethodException("Native character selection/player lifecycle changed");
             log = logger;
+            displayName = validatedDisplayName;
             harmony.Patch(update, null, new HarmonyMethod(typeof(CharacterRuntime), "SelectionUpdated"));
             harmony.Patch(load, null, new HarmonyMethod(typeof(CharacterRuntime), "PlayerBound"));
-            log("MALCOLM_CHARACTER_READY selection=Malcolm nativeIdentity=Leo nativeMoveset=Leonardo art=" + Path.GetFullPath(artDirectory));
+            log("MALCOLM_CHARACTER_READY selection=" + displayName + " nativeIdentity=Leo nativeMoveset=Leonardo art=" + Path.GetFullPath(artDirectory));
         }
 
         private static object Property(object value, string name) {
@@ -61,8 +65,8 @@ namespace Malcolm.Runtime {
             if (!IsMalcolmCharacterInfo(selectedField.GetValue(__instance))) return;
             object name = nameField.GetValue(__instance);
             if (name == null) throw new InvalidOperationException("Native Malcolm selection name control is missing");
-            overrideProperty.SetValue(name, "Malcolm", null);
-            if (reportedPanels.Add(__instance)) log("MALCOLM_SELECTION_PRESENTED nativeIdentity=Leo");
+            overrideProperty.SetValue(name, displayName, null);
+            if (reportedPanels.Add(__instance)) log("MALCOLM_SELECTION_PRESENTED name=" + displayName + " nativeIdentity=Leo");
         }
 
         private static void PlayerBound(object __instance) {

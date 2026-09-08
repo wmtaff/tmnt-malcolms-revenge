@@ -142,9 +142,13 @@ foreach ($name in $expected.Keys) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $source 'Content') -PathType Container)) { throw 'Source Content directory is missing.' }
 $compiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$launcherSources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs','ResidentialRuntime.cs','BackgroundRuntime.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+$characterArtSources = @((Join-Path $PSScriptRoot '../player-assets/CharacterArtConfig.cs'), (Join-Path $PSScriptRoot 'CharacterArtRuntime.cs'))
+$launcherSources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs','ResidentialRuntime.cs','BackgroundRuntime.cs','CharacterRuntime.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+$launcherSources += $characterArtSources
 $residentialTestSources = @('ResidentialRuntime.cs','ResidentialRuntimeTests.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
-foreach ($required in @($compiler) + $launcherSources + $residentialTestSources) {
+$characterTestSources = @('CharacterRuntime.cs','CharacterRuntimeTests.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
+$characterArtTestSources = $characterArtSources + @((Join-Path $PSScriptRoot 'CharacterArtRuntimeTests.cs'))
+foreach ($required in @($compiler) + $launcherSources + $residentialTestSources + $characterTestSources + $characterArtTestSources) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required build input missing: $required" }
 }
 
@@ -183,6 +187,18 @@ try {
 } finally {
     if ([IO.File]::Exists($residentialTests)) { [IO.File]::Delete($residentialTests) }
 }
+foreach ($suite in @('CharacterRuntimeTests', 'CharacterArtRuntimeTests')) {
+    $testSources = if ($suite -eq 'CharacterRuntimeTests') { $characterTestSources } else { $characterArtTestSources }
+    $testExe = Join-Path $libraryDirectory ([Guid]::NewGuid().ToString() + '.exe')
+    try {
+        & $compiler /nologo /platform:x64 /target:exe "/main:Malcolm.Runtime.$suite" /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$harmony" "/out:$testExe" $testSources
+        if ($LASTEXITCODE -ne 0) { throw "$suite compilation failed." }
+        & $testExe
+        if ($LASTEXITCODE -ne 0) { throw "$suite failed." }
+    } finally {
+        if ([IO.File]::Exists($testExe)) { [IO.File]::Delete($testExe) }
+    }
+}
 
 [IO.Directory]::CreateDirectory($destination) | Out-Null
 $markerTemp = Join-Path $dependencies ([Guid]::NewGuid().ToString() + '.json')
@@ -201,7 +217,7 @@ foreach ($file in Get-ChildItem -LiteralPath $content -File -Recurse -Force) {
 Install-File $harmony (Join-Path $destination '0Harmony.dll')
 Write-SteamAppId $destination
 $compiled = Join-Path $dependencies ([Guid]::NewGuid().ToString() + '.exe')
-& $compiler /nologo /platform:x64 /target:exe /reference:System.Web.Extensions.dll "/reference:$harmony" "/out:$compiled" $launcherSources
+& $compiler /nologo /platform:x64 /target:exe /reference:System.Drawing.dll /reference:System.Web.Extensions.dll "/reference:$harmony" "/out:$compiled" $launcherSources
 if ($LASTEXITCODE -ne 0) { throw "Runtime compilation failed with exit code $LASTEXITCODE" }
 Install-File $compiled (Join-Path $destination 'Malcolm.Runtime.exe')
 [IO.File]::Delete($compiled)

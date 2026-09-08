@@ -29,9 +29,12 @@ public static partial class RuntimeLauncher {
             baseline = options.Baseline;
             encounter = options.EncounterPath == null ? null : EncounterConfig.Load(Path.GetFullPath(options.EncounterPath));
             string residentialDirectory = options.ResidentialDirectory == null ? null : Path.GetFullPath(options.ResidentialDirectory);
+            string characterManifest = options.CharacterManifestPath == null ? null : Path.GetFullPath(options.CharacterManifestPath);
 
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
             ValidatePlaytest(gameDirectory);
+            // CPU art validation precedes diagnostic creation and loading any game assembly.
+            if (characterManifest != null) CharacterArtRuntime.Configure(characterManifest, Log);
             InitializeDiagnostics();
             Log("START baseline=" + baseline + " game=" + gameDirectory + " runtime=" + Environment.Version + " x64=" + Environment.Is64BitProcess);
             Directory.SetCurrentDirectory(gameDirectory);
@@ -62,6 +65,11 @@ public static partial class RuntimeLauncher {
                 Patch(harmony, RequireMethod(textureObject, "Render", 0), "RenderResidentialBackground", null);
                 Log("RESIDENTIAL_HOOKS_READY art=" + residentialDirectory);
             } else InstallEncounterPatch(harmony, game);
+            if (characterManifest != null) {
+                CharacterRuntime.Install(harmony, game, engine, Path.GetDirectoryName(characterManifest), CharacterArtRuntime.DisplayName, Log);
+                CharacterArtRuntime.Install(harmony, engine);
+                Log("MALCOLM_CHARACTER_HOOKS_READY manifest=" + characterManifest);
+            }
             InstallRenderDiagnostics(harmony);
             MethodInfo main = RequireMethod(RequireType(game, "Paris.Program"), "Main", 1);
             Log("HOOKS_READY entering Paris.Program.Main");
@@ -74,6 +82,7 @@ public static partial class RuntimeLauncher {
             return 1;
         } finally {
             BackgroundRuntime.Dispose();
+            CharacterArtRuntime.Dispose();
             if (captureStream != null) { captureStream.Dispose(); captureStream = null; }
             if (logWriter != null) { logWriter.Dispose(); logWriter = null; }
         }

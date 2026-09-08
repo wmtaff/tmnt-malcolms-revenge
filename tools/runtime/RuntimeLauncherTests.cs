@@ -11,6 +11,12 @@ public static partial class RuntimeLauncher {
         if (options.Baseline || options.EncounterPath != "encounter.json") throw new Exception("Encounter CLI wrong");
         options = RuntimeOptions.Parse(new string[] { "game", "output.log", "--residential", "art directory" });
         if (options.Baseline || options.EncounterPath != null || options.ResidentialDirectory != "art directory") throw new Exception("Residential CLI wrong");
+        options = RuntimeOptions.Parse(new[] { "game", "output.log", "--baseline", "--character", "Malcolm manifest.json" });
+        if (!options.Baseline || options.CharacterManifestPath != "Malcolm manifest.json") throw new Exception("Baseline plus character CLI wrong");
+        options = RuntimeOptions.Parse(new[] { "game", "output.log", "--character", "Malcolm.json", "--encounter", "waves.json" });
+        if (options.EncounterPath != "waves.json" || options.CharacterManifestPath != "Malcolm.json") throw new Exception("Character before mode CLI wrong");
+        options = RuntimeOptions.Parse(new[] { "game", "output.log", "--residential", "art", "--character", "Malcolm.json" });
+        if (options.ResidentialDirectory != "art" || options.CharacterManifestPath != "Malcolm.json") throw new Exception("Residential plus character CLI wrong");
         foreach (string[] bad in new string[][] {
             new string[] { "game", "output.log" },
             new string[] { "game", "output.log", "--encounter" },
@@ -20,6 +26,13 @@ public static partial class RuntimeLauncher {
             ,new string[] { "game", "output.log", "--residential", " " }
             ,new string[] { "game", "output.log", "--baseline", "--residential", "art" }
             ,new string[] { "game", "output.log", "--encounter", "x.json", "--residential", "art" }
+            ,new string[] { "game", "output.log", "--character", "Malcolm.json" }
+            ,new string[] { "game", "output.log", "--baseline", "--character" }
+            ,new string[] { "game", "output.log", "--baseline", "--character", " " }
+            ,new string[] { "game", "output.log", "--baseline", "--character", "--encounter" }
+            ,new string[] { "game", "output.log", "--baseline", "--baseline" }
+            ,new string[] { "game", "output.log", "--baseline", "--character", "a", "--character", "b" }
+            ,new string[] { "game", "output.log", "--character", "a", "--baseline", "--encounter", "b" }
         }) {
             bool invalid = false;
             try { RuntimeOptions.Parse(bad); } catch (ArgumentException) { invalid = true; }

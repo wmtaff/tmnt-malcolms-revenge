@@ -61,7 +61,7 @@ namespace Malcolm.Runtime {
                 Check(!CharacterRuntime.IsMalcolmPlayer(new Paris.Game.Actor.Raphael { CharacterInfo=donor }), "Different actor type matched");
 
                 var messages=new List<string>(); var harmony=new Harmony("Malcolm.CharacterRuntime.Tests");
-                CharacterRuntime.Install(harmony, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly(), Environment.CurrentDirectory, messages.Add);
+                CharacterRuntime.Install(harmony, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly(), Environment.CurrentDirectory, "Malcolm", messages.Add);
                 var panel=new Paris.Game.Menu.CharacterSelectionPanel(); panel.Select(donor); panel.UpdateCharacterSelection();
                 Check(panel.Label=="Malcolm" && panel.NativeUpdateCount==1, "Real Harmony postfix did not present Malcolm");
                 Check(donor.InternalName=="Leo" && donor.ActorTemplate=="Player\\Leo", "Native identity changed");
@@ -72,6 +72,11 @@ namespace Malcolm.Runtime {
                 player.LoadPlayerInfo(new Paris.Game.System.GamePlayerInfo());
                 Check(player.NativeLoadCount==1, "Native player initialization skipped");
                 Check(messages.Exists(delegate(string s) { return s.StartsWith("MALCOLM_PLAYER_BOUND"); }), "Binding evidence missing");
+                harmony.UnpatchAll(harmony.Id);
+                CharacterRuntime.Install(harmony, Assembly.GetExecutingAssembly(), Assembly.GetExecutingAssembly(), Environment.CurrentDirectory, "Custom Hero", messages.Add);
+                var alternatePanel=new Paris.Game.Menu.CharacterSelectionPanel(); alternatePanel.Select(donor); alternatePanel.UpdateCharacterSelection();
+                Check(alternatePanel.Label=="Custom Hero", "Validated custom display name was ignored");
+                Check(donor.InternalName=="Leo", "Alternate display name changed native identity");
                 harmony.UnpatchAll(harmony.Id);
                 Console.WriteLine("CHARACTER_RUNTIME_SELF_TEST_PASS exact donor selection native lifecycle unchanged identity");
                 return 0;

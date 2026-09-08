@@ -6,6 +6,7 @@ param(
     [switch]$Baseline,
     [string]$Encounter,
     [string]$Residential,
+    [ValidateNotNullOrEmpty()][string]$Character,
     [switch]$Capture
 )
 $ErrorActionPreference = 'Stop'
@@ -73,6 +74,12 @@ if ($Action -ne 'Start' -and -not (Test-Path -LiteralPath $sessionPath)) {
     exit 0
 }
 $executable = Assert-OwnedStage $stage
+if ($Action -eq 'Start' -and $Character) {
+    $Character = Assert-PlainPath $Character
+    if (-not (Test-Path -LiteralPath $Character -PathType Leaf) -or [IO.Path]::GetFileName($Character) -cne 'manifest.json') {
+        throw 'Character must identify an existing manifest.json file.'
+    }
+}
 if ($Action -eq 'Start' -and $Residential) {
     $Residential = Assert-PlainPath $Residential
     if (-not (Test-Path -LiteralPath $Residential -PathType Container)) { throw "Residential art directory missing: $Residential" }
@@ -126,6 +133,7 @@ $bitmap = $null
 if ($Capture) { $bitmap = Join-Path $artifacts ($id + '.bmp') }
 $arguments = @($stage, $log)
 if ($Baseline) { $arguments += '--baseline' } elseif ($Residential) { $arguments += @('--residential', $Residential) } else { $arguments += @('--encounter', $Encounter) }
+if ($Character) { $arguments += @('--character', $Character) }
 $serialized = ($arguments | ForEach-Object { Quote-WindowsArgument $_ }) -join ' '
 # CreateNew prevents concurrent launches from overwriting the active identity.
 $stream = [IO.File]::Open($sessionPath, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
@@ -139,6 +147,7 @@ try {
         startTimeUtcTicks = $child.StartTime.ToUniversalTime().Ticks.ToString()
         executable = $executable; log = $log; capture = $bitmap
         baseline = [bool]$Baseline; encounter = $Encounter; residential = $Residential
+        character = $Character
     }
     $bytes = [Text.Encoding]::UTF8.GetBytes(($record | ConvertTo-Json))
     $stream.Write($bytes, 0, $bytes.Length)
