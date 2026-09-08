@@ -55,6 +55,9 @@ public static partial class RuntimeLauncher {
             if (residentialDirectory != null) {
                 BackgroundRuntime.Configure(engine, residentialDirectory, Log);
                 ResidentialRuntime.Install(harmony, game, engine, Log);
+                Type residentialBlock = RequireType(game, "Paris.Game.Triggers.CameraBlockTrigger");
+                Patch(harmony, RequireMethod(residentialBlock, "InternalStartWave", 0), null, "ResidentialWaveEnd");
+                Patch(harmony, RequireMethod(residentialBlock, "ToggleEndOfBlock", 1), null, "ResidentialBlockEnd");
                 Type textureObject = RequireType(engine, "Paris.Engine.GameObject.TextureGameObject");
                 Patch(harmony, RequireMethod(textureObject, "Render", 0), "RenderResidentialBackground", null);
                 Log("RESIDENTIAL_HOOKS_READY art=" + residentialDirectory);
@@ -76,6 +79,27 @@ public static partial class RuntimeLauncher {
         }
     }
     private static bool RenderResidentialBackground(object __instance) { return BackgroundRuntime.TryRender(__instance); }
+    private static bool IsResidentialDiagnosticBlock(object block) {
+        return new Guid("8cbcf846-5120-4edf-82f4-a2f344678e2a").Equals(Property(block, "Id")) &&
+            Convert.ToString(Property(block, "Name")) == "CamBlockBoss" &&
+            NormalizeScene(Property(block, "Scene")) == "2d/level/playfield/stage/stage_12/level_12_art";
+    }
+    private static void ResidentialWaveEnd(object __instance, bool __result) {
+        try {
+            if (!__result || !IsResidentialDiagnosticBlock(__instance)) return;
+            int index = Convert.ToInt32(Property(__instance, "CurrentWaveIndex"));
+            var waves = Property(__instance, "Waves") as System.Collections.IList;
+            string group = waves != null && index >= 0 && index < waves.Count
+                ? Convert.ToString(Property(Property(waves[index], "Group"), "ID")) : "<outside-wave-list>";
+            Log("RESIDENTIAL_NATIVE_WAVE_STARTED index=" + index + " group=" + group);
+        } catch (Exception error) { Console.Error.WriteLine("RESIDENTIAL_WAVE_DIAGNOSTIC_FAILED " + error.Message); }
+    }
+    private static void ResidentialBlockEnd(object __instance, object[] __args) {
+        try {
+            if (__args.Length == 1 && Object.Equals(__args[0], true) && IsResidentialDiagnosticBlock(__instance))
+                Log("RESIDENTIAL_BOSS_BLOCK_COMPLETED callback=ToggleEndOfBlock ended=true");
+        } catch (Exception error) { Console.Error.WriteLine("RESIDENTIAL_COMPLETION_DIAGNOSTIC_FAILED " + error.Message); }
+    }
     private static void AssertDiagnosticPath(string path, string extension) {
         if (!String.Equals(Path.GetExtension(path), extension, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Diagnostic file must end in " + extension);
         if (File.Exists(path) || Directory.Exists(path)) throw new InvalidOperationException("Diagnostic path already exists; choose a fresh filename: " + path);

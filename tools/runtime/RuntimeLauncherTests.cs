@@ -65,6 +65,28 @@ public static partial class RuntimeLauncher {
         EncounterConfigTests.Run();
         EncounterRuntimeTests.Run();
         BackgroundRuntime.SelfTest();
+        var waveOutput = new System.IO.StringWriter();
+        System.IO.TextWriter previousOutput = Console.Out;
+        try {
+            Console.SetOut(waveOutput);
+            var diagnosticBlock = new DiagnosticBlock();
+            ResidentialWaveEnd(diagnosticBlock, false);
+            if (waveOutput.ToString().Length != 0) throw new Exception("Failed wave logged as started");
+            foreach (string group in new string[] { "#MalcolmResidentialFootWave", "#Cutscene_BossIntro", "#Cutscene_BossBanner", "#BossFight" }) {
+                diagnosticBlock.Waves[0].Group.ID = group;
+                ResidentialWaveEnd(diagnosticBlock, true);
+                if (!waveOutput.ToString().Contains("group=" + group)) throw new Exception("Residential wave group missing");
+            }
+            ResidentialBlockEnd(diagnosticBlock, new object[] { false });
+            if (waveOutput.ToString().Contains("RESIDENTIAL_BOSS_BLOCK_COMPLETED")) throw new Exception("Block reset logged as completion");
+            ResidentialBlockEnd(diagnosticBlock, new object[] { true });
+            if (!waveOutput.ToString().Contains("RESIDENTIAL_BOSS_BLOCK_COMPLETED")) throw new Exception("Boss block completion missing");
+            waveOutput.GetStringBuilder().Length = 0;
+            diagnosticBlock.Name = "OtherBlock";
+            ResidentialWaveEnd(diagnosticBlock, true);
+            ResidentialBlockEnd(diagnosticBlock, new object[] { true });
+            if (waveOutput.ToString().Length != 0) throw new Exception("Unrelated block produced residential diagnostics");
+        } finally { Console.SetOut(previousOutput); }
         var renderHarmony = new Harmony("malcolm.runtime.background.selftest");
         try {
             Patch(renderHarmony, RequireMethod(typeof(RenderSurrogate), "Render", 0), "RenderResidentialBackground", null);
@@ -84,6 +106,16 @@ public static partial class RuntimeLauncher {
     public sealed class RenderSurrogate {
         public int Calls;
         [MethodImpl(MethodImplOptions.NoInlining)] public void Render() { Calls++; }
+    }
+    public sealed class DiagnosticGroup { public string ID { get; set; } }
+    public sealed class DiagnosticWave { public DiagnosticGroup Group { get; set; } }
+    public sealed class DiagnosticBlock {
+        public Guid Id { get { return new Guid("8cbcf846-5120-4edf-82f4-a2f344678e2a"); } }
+        public string Name { get; set; }
+        public TestScene Scene { get; set; }
+        public int CurrentWaveIndex { get { return 0; } }
+        public DiagnosticWave[] Waves { get; set; }
+        public DiagnosticBlock() { Name = "CamBlockBoss"; Scene = new TestScene { PlayfieldPath = "2d/level/playfield/stage/stage_12/level_12_art" }; Waves = new[] { new DiagnosticWave { Group = new DiagnosticGroup() } }; }
     }
     public class Surrogate {
         public int Writes;
