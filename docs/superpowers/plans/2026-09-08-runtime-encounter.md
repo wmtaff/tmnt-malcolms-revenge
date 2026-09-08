@@ -10,9 +10,9 @@
 
 - [x] Runtime agent: determine runtime/entrypoint, inspect historical loader strategy, return exact supported hook signatures.
 - [x] Scene agent: inspect the first level's serializer/object types and identify one bounded spawn change.
-- [ ] Coordinator: prepare isolated playtest copy, establish unmodified launch and UI controls, implement version-checked launcher/patch based on agent evidence.
-- [ ] Verify runtime logging first, then encounter mutation with screenshots and logs. Record what is directly observed versus inferred.
+- [x] Coordinator: prepare isolated playtest copy, establish unmodified launch with user-operated menu controls, implement version-checked launcher/patch based on agent evidence.
+- [x] Verify runtime logging first, then encounter mutation with screenshots and logs. Record what is directly observed versus inferred. Exact coordinates are verified by logs; gameplay captures establish rendering, not a visual measurement of enemy displacement.
 - [x] Add repeatable build/launch/rollback instructions and synthetic tests for reusable logic.
-- [ ] Independent code review, complete tests, publish feature branch and CI verification.
+- [x] Independent code review, complete tests, publish feature branch and CI verification.
 
 Compatibility-dependent implementation details will be recorded after the two metadata probes; do not invent signatures or patch unknown fields.
