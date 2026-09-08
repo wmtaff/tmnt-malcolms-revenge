@@ -24,6 +24,7 @@ public static partial class RuntimeLauncher {
             Directory.CreateDirectory(Path.GetDirectoryName(logFile));
             Log("START baseline=" + baseline + " game=" + gameDirectory + " runtime=" + Environment.Version + " x64=" + Environment.Is64BitProcess);
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
+            ValidatePlaytest(gameDirectory);
             Directory.SetCurrentDirectory(gameDirectory);
             if (!SetDllDirectory(gameDirectory)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
             AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e) { TraceStartupException(e.Exception); };
@@ -53,6 +54,25 @@ public static partial class RuntimeLauncher {
             Console.Error.WriteLine(error);
             return 1;
         }
+    }
+    private static void ValidatePlaytest(string directory) {
+        string marker = Path.Combine(directory, ".malcolm-playtest.json");
+        if (!File.Exists(marker) || new FileInfo(marker).Length > 256 || File.ReadAllText(marker).Trim() != "{\"schemaVersion\":1,\"owner\":\"malcolm-mod-runtime\"}")
+            throw new InvalidOperationException("Playtest ownership marker missing or invalid; use build.ps1");
+        string[] names = { "TMNT.exe", "ParisEngine.dll", "ParisSerializers.dll" };
+        string[] hashes = {
+            "36435CC7E1063F76E4641C92F95601414B62C1FAEDA39A64CCC270EEF6D82CC6",
+            "02FAE3072962C2304F9F086DB1680D8111D24CBF2F16A362C262809C62E4E7DE",
+            "12A8F1B1288664D343EE8E8E68BB5EB593696D4CEB62D6ADD27AF5B72B81F554"
+        };
+        for (int i = 0; i < names.Length; i++) {
+            using (var algorithm = System.Security.Cryptography.SHA256.Create())
+            using (var stream = File.OpenRead(Path.Combine(directory, names[i]))) {
+                string hash = BitConverter.ToString(algorithm.ComputeHash(stream)).Replace("-", "");
+                if (hash != hashes[i]) throw new InvalidOperationException("Unsupported game build: " + names[i]);
+            }
+        }
+        Log("PLAYTEST_VERIFIED marker and three assembly hashes");
     }
     private static void InitializeCrashReporter() {
         // NBug discovers protocol factories by calling GetTypes on every loaded
@@ -130,7 +150,7 @@ public static partial class RuntimeLauncher {
         string name = Convert.ToString(Property(__instance, "Name"));
         object position = Property(__instance, "InitialPosition");
         Log("ENEMY_RESET name=" + name + " scene=" + scene + " initial=" + position);
-        if (name != "FootSoldierRegular_202") return;
+        if (name != "FootSoldierRegular_202" || !new Guid("6f229aef-a56f-4457-b5a0-60d158b48fb1").Equals(Property(__instance, "Id"))) return;
         FieldInfo x = position.GetType().GetField("X");
         FieldInfo y = position.GetType().GetField("Y");
         FieldInfo z = position.GetType().GetField("Z");
@@ -153,6 +173,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 

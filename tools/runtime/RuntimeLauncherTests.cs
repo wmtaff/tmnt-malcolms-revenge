@@ -24,6 +24,9 @@ public static partial class RuntimeLauncher {
         enemy.Name = "FootSoldierRegular_202"; enemy.Scene.PlayfieldPath = "other"; EncounterBegin(enemy, out matched);
         if (matched || enemy.InitialPosition.X != 483) throw new Exception("Wrong scene mutated");
         enemy.Scene.PlayfieldPath = "2d\\Level\\Playfield\\Stage\\Stage_01\\Level_01_art";
+        enemy.Id = Guid.Empty; EncounterBegin(enemy, out matched);
+        if (matched || enemy.InitialPosition.X != 483) throw new Exception("Wrong ID mutated");
+        enemy.Id = new Guid("6f229aef-a56f-4457-b5a0-60d158b48fb1");
         EncounterBegin(enemy, out matched);
         if (!matched || enemy.InitialPosition.X != 563) throw new Exception("Target not shifted");
         EncounterBegin(enemy, out matched);
@@ -33,8 +36,8 @@ public static partial class RuntimeLauncher {
     public struct TestVector { public float X, Y, Z; public TestVector(float x, float y, float z) { X=x;Y=y;Z=z; } }
     public sealed class TestScene { public string PlayfieldPath {get;set;} public TestScene(){PlayfieldPath="2d\\Level\\Playfield\\Stage\\Stage_01\\Level_01_art";} }
     public sealed class TestEnemy {
-        public string Name {get;set;} public TestScene Scene {get;set;} public TestVector InitialPosition {get;set;}
-        public TestEnemy(){Name="FootSoldierRegular_202";Scene=new TestScene();InitialPosition=new TestVector(483,228,0);}
+        public Guid Id {get;set;} public string Name {get;set;} public TestScene Scene {get;set;} public TestVector InitialPosition {get;set;}
+        public TestEnemy(){Id=new Guid("6f229aef-a56f-4457-b5a0-60d158b48fb1");Name="FootSoldierRegular_202";Scene=new TestScene();InitialPosition=new TestVector(483,228,0);}
     }
     public sealed class InheritedSurrogate : Surrogate { }
     public class Surrogate {
@@ -42,6 +45,7 @@ public static partial class RuntimeLauncher {
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }
     }
 }}
+
 
 
 
