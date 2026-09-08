@@ -29,5 +29,5 @@ Each launch requires a fresh `.log` filename in an existing directory. Existing 
 
 Windows CI separately downloads and verifies the pinned Harmony package, compiles the launcher with the .NET Framework compiler, and runs `--self-test` without any game assets. This exercises the surrogate runtime patches; it does not replace a gameplay check.
 
-The encounter version also compiles the configuration, native adapter, CLI options, hooks, and their test files, with the Framework `System.Web.Extensions.dll` reference for JSON parsing. It requires explicit `--baseline` or `--encounter <file>` selection. It no longer forces display mode or scale. See [current prototype verification limits](encounter-prototype.md) before running it.
+The current version also compiles the encounter configuration, native adapters, background renderer, CLI options, hooks, and launcher tests, with the Framework `System.Web.Extensions.dll` reference for JSON parsing. It requires explicit `--baseline`, `--encounter <file>`, or `--residential <art-directory>` selection. Residential synthetic tests compile and run in a separate executable so their native-shaped stand-ins never enter the actual launcher. Display mode and scale follow saved settings. See [encounter verification](encounter-prototype.md) and [residential verification](residential-verification.md) before running it.
 

@@ -17,9 +17,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/runtime/playtest.p
 
 # Or select another encounter configuration.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/runtime/playtest.ps1 -Action Start -Encounter 'C:/path/encounter.json'
+
+# Summer house-to-park route, with native Foot Soldiers followed by Baxter.
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/runtime/playtest.ps1 -Action Start -Residential "$PWD/art/backgrounds/residential" -Capture
 ```
 
-`-Baseline` and `-Encounter` are mutually exclusive. Start without either selects the repository's `encounters/episode1-lobby.json`. The launcher validates encounter contents. The controls require that configuration file to exist before starting, and require the staged `Malcolm.Runtime.exe` and ownership marker `{"schemaVersion":1,"owner":"malcolm-mod-runtime"}`. They do not force window size or change saved graphics preferences. Launches use a normal visible window.
+`-Baseline`, `-Encounter`, and `-Residential` are mutually exclusive. Start without any mode selects the repository's `encounters/episode1-lobby.json`. The launcher validates encounter contents. Residential mode requires a directory containing `home.png`, `street.png`, and `park.png`; start Episode 1 normally to enter its redirected native Stage 12 route. The controls require all selected inputs to exist before starting, plus the staged `Malcolm.Runtime.exe` and ownership marker `{"schemaVersion":1,"owner":"malcolm-mod-runtime"}`. They do not force window size or change saved graphics preferences. Launches use a normal visible window.
 
 Defaults are `local/playtest` and `artifacts`. Override them with `-PlaytestDirectory` and `-ArtifactsDirectory`, using the same paths for Start, Status, and Stop. Each run has a unique log filename and, with `-Capture`, a unique BMP filename. Capture output is supplied through `MALCOLM_CAPTURE_FRAME`; the controller restores its prior environment value after spawning the child. Paths with spaces are serialized as individual Windows command-line arguments.
 

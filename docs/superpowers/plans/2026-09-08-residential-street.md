@@ -5,7 +5,7 @@
 
 - [x] Generate home, street, and park candidates with saved prompts and provenance; inspect repeat and pixel-art characteristics. Seam and palette warnings remain.
 - [x] Implement bounded background diagnostics and self-contained repeating preview with synthetic tests.
-- [ ] Determine native background import/render hook and implement a reversible isolated replacement where supported.
-- [ ] Determine native Baxter dependencies and a short Foot Soldier approach; implement exact guarded runtime changes.
+- [x] Determine native background import/render hook and implement a reversible isolated replacement where supported.
+- [x] Determine native Baxter dependencies and a short Foot Soldier approach; implement exact guarded runtime changes.
 - [ ] Integrate tools/configuration, review independently, test and stage, then verify actual gameplay.
 - [ ] Publish source/art generated for project and document what is verified versus still experimental.
