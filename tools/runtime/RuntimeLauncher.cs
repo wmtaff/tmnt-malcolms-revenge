@@ -29,6 +29,7 @@ public static partial class RuntimeLauncher {
             AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e) { TraceStartupException(e.Exception); };
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
             AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) { Log("UNHANDLED " + e.ExceptionObject); };
+            InitializeCrashReporter();
             Assembly engine = Assembly.LoadFrom(Path.Combine(gameDirectory, "ParisEngine.dll"));
             Assembly game = Assembly.LoadFrom(Path.Combine(gameDirectory, "TMNT.exe"));
             Log("ASSEMBLY " + game.FullName);
@@ -52,6 +53,17 @@ public static partial class RuntimeLauncher {
             Console.Error.WriteLine(error);
             return 1;
         }
+    }
+    private static void InitializeCrashReporter() {
+        // NBug discovers protocol factories by calling GetTypes on every loaded
+        // assembly. Run its normal initialization before Harmony eagerly loads
+        // Steamworks method dependencies containing unsupported unused union types.
+        Assembly nbug = Assembly.LoadFrom(Path.Combine(gameDirectory, "NBug.dll"));
+        Type settings = RequireType(nbug, "NBug.Settings");
+        settings.GetProperty("Destinations", BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
+        object protocols = settings.GetField("_availableProtocols", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+        protocols.GetType().GetProperty("Value").GetValue(protocols, null);
+        Log("CRASH_REPORTER_READY before game hooks");
     }
     private static void TraceStartupException(Exception error) {
         string type = error.GetType().FullName;
@@ -141,6 +153,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 
