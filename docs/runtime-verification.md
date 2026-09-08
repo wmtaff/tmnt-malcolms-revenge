@@ -27,6 +27,6 @@ For optional direct frame capture, set an absolute output filename before launch
 $env:MALCOLM_CAPTURE_FRAME = "$PWD/artifacts/latest-frame.bmp"
 ```
 
-The launcher replaces that BMP every 120 Present calls, with dimensions bounded to 3840 by 2160 and file size to 32 MiB. Capture is diagnostic and can reduce performance. Use a disposable filename: existing contents are overwritten. Remove the environment variable to disable capture. Logs, copied game binaries, and captured game images are local evidence and must not be committed.
+Use a new filename for each launch in an existing directory. The launcher rejects existing diagnostic files and reparse paths, then keeps its newly created file handles open. It updates its own BMP every 120 Present calls, with dimensions bounded to 3840 by 2160 and file size to 32 MiB. Capture is diagnostic and can reduce performance. Remove the environment variable to disable capture. Logs, copied game binaries, and captured game images are local evidence and must not be committed.
 
 To roll back the experiment, close `Malcolm.Runtime.exe` and launch the normal game through Steam. No installed assembly replacement is required.

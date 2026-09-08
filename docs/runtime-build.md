@@ -23,5 +23,7 @@ The script never launches the game. After a successful build, close existing gam
 
 A successful build establishes compilation and staging only. Runtime self-test and actual visual verification remain separate checks.
 
+Each launch requires a fresh `.log` filename in an existing directory. Existing diagnostic files and reparse paths are rejected to prevent accidental overwrites. Optional `MALCOLM_CAPTURE_FRAME` likewise requires a fresh `.bmp` filename; see [verification instructions](runtime-verification.md).
+
 Windows CI separately downloads and verifies the pinned Harmony package, compiles the launcher with the .NET Framework compiler, and runs `--self-test` without any game assets. This exercises the surrogate runtime patches; it does not replace a gameplay check.
 
