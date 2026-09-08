@@ -35,20 +35,36 @@ Verified local metadata and partial native records:
 
 `tools/runtime/BackgroundRuntime.cs` provides an optional render-thread replacement
 for that exact scene/object/path/position. Parent integration should call
-`BackgroundRuntime.Configure(installedEngineAssembly, pngPath, Log)`, then install
+`BackgroundRuntime.Configure(installedEngineAssembly, imageDirectory, Log)`, then install
 a `TextureGameObject.Render` Harmony prefix returning
 `BackgroundRuntime.TryRender(__instance)`. Call `Dispose()` at shutdown on the
 render thread. It needs no additional compile references. `SelfTest()` exercises
 tile layout, PNG dimension bounds, and fallback on reflection mismatch without
 game assemblies or Harmony.
 
-The image path is supplied by the caller; no location, reference address, or draft
-art is embedded in source. It accepts bounded 8-bit RGB/RGBA PNG input, at most
-16 MiB and 4,194,304 pixels, loads it once per graphics device, and draws three
-horizontal repeats over native X 4096..6464 at world height 480 and repeat width
-960. For source 1774 by 887, that means about 1.85 source pixels per world pixel.
-The final repeat is cropped to the native ground's right edge. Nearest sampling
-is inherited from the native renderer. Supply opaque art to cover the old floor.
+The caller supplies a directory containing `home.png`, `street.png`, and
+`park.png`; no location, reference address, or draft art is embedded in source.
+Each file accepts bounded 8-bit RGB/RGBA PNG input, at most 16 MiB and 4,194,304
+pixels (three files maximum). All headers validate before configuration changes,
+and all three GPU uploads complete before the first replacement draw submission.
+Each texture loads once per graphics device and is released on reset/disposal.
+
+The complete source image fills its corresponding world rectangle:
+
+| Image | World X | Width | World Y | Height |
+| --- | --- | --- | --- | --- |
+| home.png | 4096..4896 | 800 | 0..456 | 456 |
+| street.png | 4896..5664 | 768 | 0..456 | 456 |
+| park.png | 5664..6464 | 800 | 0..456 | 456 |
+
+The segments meet exactly and cover the native ground's original 2368 by 456
+extent. The parent can build a repeating pattern inside `street.png`; this
+runtime draws that middle image once. Native Baxter X=6326 lies inside the park
+segment. Supply matching opaque edges and align the curb near image Y=70% to put
+it around world Y=319, above the current actor foot positions near Y=360.
+Nearest sampling is inherited from the native renderer; source dimensions may
+differ but are scaled to these fixed rectangles. This visual replacement does
+not establish the underlying route's collision traversability.
 
 Camera, collision, enemy behavior, native animation objects, and boss machinery
 remain controlled by the scene. A failed optional replacement preserves native
