@@ -143,6 +143,8 @@ replaces them; this profile does not supply a new voice pack.
 
 Expected evidence:
 
+- `CHARACTER_ART_PREFLIGHT_COMPLETE`: CPU art validation succeeded before any
+  game assembly was loaded; recorded after the fresh diagnostic log opens.
 - `MALCOLM_CHARACTER_READY`: identity/presentation hooks installed.
 - `MALCOLM_SELECTION_PRESENTED`: a matching selection panel displayed Malcolm.
 - `MALCOLM_PLAYER_BOUND`: native Leonardo player initialized under the profile.

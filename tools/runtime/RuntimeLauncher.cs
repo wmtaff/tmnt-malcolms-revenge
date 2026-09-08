@@ -37,6 +37,7 @@ public static partial class RuntimeLauncher {
             if (characterManifest != null) CharacterArtRuntime.Configure(characterManifest, Log);
             InitializeDiagnostics();
             Log("START baseline=" + baseline + " game=" + gameDirectory + " runtime=" + Environment.Version + " x64=" + Environment.Is64BitProcess);
+            if (characterManifest != null) Log("CHARACTER_ART_PREFLIGHT_COMPLETE manifest=" + characterManifest + " displayName=" + CharacterArtRuntime.DisplayName);
             Directory.SetCurrentDirectory(gameDirectory);
             if (!SetDllDirectory(gameDirectory)) throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
             AppDomain.CurrentDomain.FirstChanceException += delegate(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e) { TraceStartupException(e.Exception); };
