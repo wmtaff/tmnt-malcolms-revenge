@@ -1,0 +1,30 @@
+name: Runtime self-test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test without game assets
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:RUNNER_TEMP ('malcolm-runtime-' + [guid]::NewGuid())
+          [IO.Directory]::CreateDirectory($output) | Out-Null
+          $package = Join-Path $output 'harmony.nupkg'
+          Invoke-WebRequest -Uri 'https://api.nuget.org/v3-flatcontainer/lib.harmony/2.2.1/lib.harmony.2.2.1.nupkg' -OutFile $package
+          if ((Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne 'EEDA9350790EE24606A60D8A4CDAEE87A143D12BFEACE6D4952959EA2DB6917C') { throw 'Harmony hash mismatch' }
+          $archive = [IO.Compression.ZipFile]::OpenRead($package)
+          try {
+            $entry = $archive.GetEntry('lib/net45/0Harmony.dll')
+            if ($null -eq $entry -or $entry.Length -gt 20MB) { throw 'Missing or oversized Harmony DLL' }
+            [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $output '0Harmony.dll'))
+          } finally { $archive.Dispose() }
+          $launcher = Join-Path $output 'Malcolm.Runtime.exe'
+          $sources = @((Resolve-Path tools/runtime/RuntimeLauncher.cs).Path, (Resolve-Path tools/runtime/RuntimeLauncherTests.cs).Path)
+          & C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe /nologo /platform:x64 /target:exe "/reference:$output/0Harmony.dll" "/out:$launcher" $sources
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime compilation failed' }
+          & $launcher --self-test
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime self-test failed' }

@@ -76,6 +76,27 @@ class RuntimeBuildTests(unittest.TestCase):
         self.assertIn('Unsupported game build', result.stdout + result.stderr)
         self.assertFalse((self.root / 'local').exists())
 
+    def test_steam_appid_replaces_staged_hardlink_without_changing_source(self):
+        self.output.mkdir()
+        original = self.source / 'steam_appid.txt'
+        original.write_bytes(b'original source file')
+        os.link(original, self.output / 'steam_appid.txt')
+        # Load just the production file-install functions without executing the
+        # build's game hash/network orchestration.
+        command = '''
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($env:TEST_SCRIPT, [ref]$null, [ref]$null)
+$functions = $ast.FindAll({param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -in @('Install-File', 'Write-SteamAppId')}, $false)
+foreach ($function in $functions) { Invoke-Expression $function.Extent.Text }
+Write-SteamAppId $env:TEST_OUTPUT
+'''
+        result = subprocess.run(['powershell.exe', '-NoProfile', '-Command', command],
+                                env={**os.environ, 'TEST_OUTPUT': str(self.output),
+                                     'TEST_SCRIPT': str(Path(__file__).resolve().parents[1] / 'tools/runtime/build.ps1')},
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual((self.output / 'steam_appid.txt').read_bytes(), b'1361510\n')
+        self.assertEqual(original.read_bytes(), b'original source file')
+
     def test_unowned_nonempty_output_is_untouched(self):
         self.output.mkdir()
         (self.output / 'keep.txt').write_text('do not overwrite')

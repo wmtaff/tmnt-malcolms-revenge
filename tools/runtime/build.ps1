@@ -95,6 +95,15 @@ function Install-File([string]$Source, [string]$Target) {
     if ([IO.File]::Exists($Target)) { [IO.File]::Delete($Target) }
     [IO.File]::Move($temporary, $Target)
 }
+function Write-SteamAppId([string]$Directory) {
+    $temporary = Join-Path $Directory ([Guid]::NewGuid().ToString() + '.appid')
+    try {
+        [IO.File]::WriteAllText($temporary, "1361510`n", [Text.Encoding]::ASCII)
+        Install-File $temporary (Join-Path $Directory 'steam_appid.txt')
+    } finally {
+        if ([IO.File]::Exists($temporary)) { [IO.File]::Delete($temporary) }
+    }
+}
 
 $source = Get-SafePath $SourceGameDirectory
 $destination = Get-SafePath $PlaytestDirectory
@@ -178,6 +187,7 @@ foreach ($file in Get-ChildItem -LiteralPath $content -File -Recurse -Force) {
     Install-File $file.FullName (Join-Path $destination $file.FullName.Substring($source.Length + 1))
 }
 Install-File $harmony (Join-Path $destination '0Harmony.dll')
+Write-SteamAppId $destination
 $compiled = Join-Path $dependencies ([Guid]::NewGuid().ToString() + '.exe')
 & $compiler /nologo /platform:x64 /target:exe "/reference:$harmony" "/out:$compiled" $launcherSources
 if ($LASTEXITCODE -ne 0) { throw "Runtime compilation failed with exit code $LASTEXITCODE" }
