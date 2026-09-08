@@ -21,6 +21,10 @@ def main(argv=None):
     background_preview = commands.add_parser('preview-background')
     background_preview.add_argument('path')
     background_preview.add_argument('output')
+    commands.add_parser('inspect-character').add_argument('path')
+    character_preview = commands.add_parser('preview-character')
+    character_preview.add_argument('path')
+    character_preview.add_argument('output')
     args = parser.parse_args(argv)
     try:
         if args.command == 'inspect-game':
@@ -35,6 +39,12 @@ def main(argv=None):
         elif args.command == 'preview-background':
             from .backgrounds import write_repeat_preview
             report = write_repeat_preview(args.path, args.output)
+        elif args.command == 'inspect-character':
+            from .characters import inspect_character_manifest
+            report = inspect_character_manifest(args.path)
+        elif args.command == 'preview-character':
+            from .characters import write_character_preview
+            report = write_character_preview(args.path, args.output)
         else:
             from .sprites import validate_sprite
             report = validate_sprite(args.path, width=args.width,

@@ -72,7 +72,7 @@ def _analyze(path):
              'Expected character schema_version 1.')
     _require(_identifier(document.get('character_id')), 'Invalid character_id.')
     scale = document.get('render_scale', 1)
-    _require(_number(scale) and scale > 0, 'render_scale must be finite and positive.')
+    _require(_number(scale) and .01 <= scale <= 4, 'render_scale must be finite and in 0.01..4.')
     sheets = _unique(document.get('sheets'), 8, 'sheet')
     frames = _unique(document.get('frames'), 4096, 'frame')
     animations = _unique(document.get('animations'), 256, 'animation')
@@ -82,7 +82,7 @@ def _analyze(path):
         _require(isinstance(rect, list) and len(rect) == 4 and all(_integer(n) for n in rect)
                  and rect[0] >= 0 and rect[1] >= 0 and rect[2] > 0 and rect[3] > 0, 'Invalid frame rectangle.')
         _require(isinstance(pivot, list) and len(pivot) == 2 and all(_number(n) for n in pivot)
-                 and 0 <= pivot[0] <= rect[2] and 0 <= pivot[1] <= rect[3], 'Invalid frame pivot.')
+                 and all(-4096 <= n <= 4096 for n in pivot), 'Frame pivots must be finite and in -4096..4096.')
     _require(sum(f['rect'][2] * f['rect'][3] for f in frames.values()) <= 32_000_000,
              'Mapped frame pixels exceed the 32M analysis bound.')
     sequence_count = 0
@@ -100,13 +100,23 @@ def _analyze(path):
     _require(isinstance(native_map, dict) and len(native_map) <= 1024, 'Invalid native_animation_map.')
     _require(all(isinstance(k, str) and 0 < len(k) <= 256 and isinstance(v, str) and v in animations for k, v in native_map.items()),
              'Native animation mapping references a missing animation.')
+    passthrough = document.get('native_passthrough', [])
+    _require(isinstance(passthrough, list) and len(passthrough) <= 150
+             and all(isinstance(name, str) and 0 < len(name) <= 256 for name in passthrough),
+             'native_passthrough must be a bounded list of nonempty native names.')
+    _require(len(set(passthrough)) == len(passthrough) and not set(passthrough).intersection(native_map),
+             'native_passthrough must be unique and disjoint from native_animation_map.')
     report = {'schema_version': 1, 'character_id': document['character_id'], 'structurally_valid': True,
               'render_scale': scale, 'sheets': [], 'frames': [], 'animation_count': len(animations),
-              'native_mapping_count': len(native_map), 'warnings': [],
+              'native_mapping_count': len(native_map), 'native_passthrough_count': len(passthrough), 'warnings': [],
               'interpretation': 'Structural review only. Preview timing does not replace native combat timing; native coverage is not established.'}
+    if len(native_map) + len(passthrough) != 150 or 'portrait' not in animations:
+        report['warnings'].append('Current runtime additionally requires exactly 150 mapped/passthrough native names and a portrait animation; native-name coverage must be checked against the exported collection.')
     assets, total_bytes, total_pixels = {}, 0, 0
     base = path.resolve().parent
     for sheet in sheets.values():
+        sheet_scale = sheet.get('render_scale', scale)
+        _require(_number(sheet_scale) and .01 <= sheet_scale <= 4, 'Sheet render_scale must be finite and in 0.01..4.')
         name = sheet.get('path')
         _require(isinstance(name, str) and name and not Path(name).is_absolute() and not PureWindowsPath(name).drive,
                  'Sheet paths must be relative and inside the manifest directory.')
@@ -129,6 +139,7 @@ def _analyze(path):
         try:
             alpha = rgba.getchannel('A')
             key = sheet.get('chroma_key')
+            _require(key is not None or 'chroma_tolerance' not in sheet, 'chroma_tolerance requires chroma_key.')
             keyed_pixels = 0
             if key is not None:
                 tolerance = sheet.get('chroma_tolerance', 32)
@@ -151,11 +162,13 @@ def _analyze(path):
                 if bounds is None:
                     report['warnings'].append(f'Frame {frame["id"]} has no visible pixels.')
                 report['frames'].append({'id': frame['id'], 'visible_bounds': list(bounds) if bounds else None,
-                                         'rect': frame['rect'], 'pivot': frame['pivot']})
+                                         'rect': frame['rect'], 'pivot': frame['pivot'], 'render_scale': sheet_scale,
+                                         'visible_size_world': [(bounds[2] - bounds[0]) * sheet_scale,
+                                                                (bounds[3] - bounds[1]) * sheet_scale] if bounds else None})
                 mapped.add(tuple(frame['rect']))
             unused = sum(tuple(cell) not in mapped for cell in cells)
             report['sheets'].append({'id': sheet['id'], 'width': width, 'height': height,
-                                     'sha256': hashlib.sha256(data).hexdigest(), 'unmapped_grid_cells': unused,
+                                     'sha256': hashlib.sha256(data).hexdigest(), 'unmapped_grid_cells': unused, 'render_scale': sheet_scale,
                                      'transparent_pixels': counts[0], 'partial_alpha_pixels': sum(counts[1:255]),
                                      'keyed_pixels': keyed_pixels})
             if unused:
@@ -185,6 +198,7 @@ def write_character_preview(path, output):
                                'frames': [{'frame': step['frame'], 'duration_ms': step['duration_ms']} for step in animation['frames']]}
                               for animation in document['animations']],
                'sheets': [{'id': sheet['id'], 'data': assets[sheet['id']], 'key': sheet.get('chroma_key'),
+                           'scale': sheet.get('render_scale', document.get('render_scale', 1)),
                            'tolerance': sheet.get('chroma_tolerance', 32)} for sheet in document['sheets']]}
     encoded = json.dumps(payload, allow_nan=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     title = html.escape(document['character_id'])
@@ -196,11 +210,15 @@ def write_character_preview(path, output):
 <p id="status"></p><canvas id="view" width="640" height="640"></canvas>
 <script type="application/json" id="data">PAYLOAD</script><script>
 const data=JSON.parse(document.getElementById('data').textContent),sheets={},frames=Object.fromEntries(data.frames.map(f=>[f.id,f]));
-const select=document.getElementById('animations'),view=document.getElementById('view'),ctx=view.getContext('2d'),status=document.getElementById('status');
+const select=document.getElementById('animations'),view=document.getElementById('view'),ctx=view.getContext('2d'),status=document.getElementById('status'),scales=Object.fromEntries(data.sheets.map(s=>[s.id,s.scale]));
+const bodyIds=new Set(data.animations.filter(a=>a.id!=='portrait').flatMap(a=>a.frames.map(f=>f.frame))),bodyFrames=data.frames.filter(f=>bodyIds.has(f.id)),cameraFrames=bodyFrames.length?bodyFrames:data.frames;
+const left=Math.min(...cameraFrames.map(f=>-f.pivot[0]*scales[f.sheet])),right=Math.max(...cameraFrames.map(f=>(f.rect[2]-f.pivot[0])*scales[f.sheet]));
+const top=Math.min(...cameraFrames.map(f=>-f.pivot[1]*scales[f.sheet])),bottom=Math.max(...cameraFrames.map(f=>(f.rect[3]-f.pivot[1])*scales[f.sheet]));
+const zoom=Math.min(4,560/(right-left),560/(bottom-top)),originX=320-(left+right)*zoom/2,originY=320-(top+bottom)*zoom/2;
 ctx.imageSmoothingEnabled=false;let index=0,paused=false,timer;
 for(const a of data.animations){const o=document.createElement('option');o.textContent=a.id;select.append(o);}
 async function load(){for(const s of data.sheets){const image=new Image();image.src=s.data;await image.decode();const c=document.createElement('canvas');c.width=image.width;c.height=image.height;const x=c.getContext('2d');x.drawImage(image,0,0);if(s.key){const p=x.getImageData(0,0,c.width,c.height);for(let i=0;i<p.data.length;i+=4){if(Math.max(...s.key.map((v,k)=>Math.abs(p.data[i+k]-v)))<=s.tolerance)p.data[i+3]=0;}x.putImageData(p,0,0);}sheets[s.id]=c;}show();}
-function show(){clearTimeout(timer);const a=data.animations[select.selectedIndex],step=a.frames[index],f=frames[step.frame],r=f.rect;const zoom=Math.min(3,560/r[2],560/r[3]);ctx.clearRect(0,0,640,640);ctx.drawImage(sheets[f.sheet],...r,320-f.pivot[0]*zoom,560-f.pivot[1]*zoom,r[2]*zoom,r[3]*zoom);status.textContent=a.id+' / '+f.id+' / '+step.duration_ms+' ms (preview only)';if(!paused)timer=setTimeout(()=>{if(index+1<a.frames.length)index++;else if(a.loop)index=0;else return;show();},step.duration_ms);}
+function show(){clearTimeout(timer);const a=data.animations[select.selectedIndex],step=a.frames[index],f=frames[step.frame],r=f.rect,s=scales[f.sheet]*zoom;ctx.clearRect(0,0,640,640);if(a.id==='portrait'){const fit=Math.min(560/r[2],560/r[3]);ctx.drawImage(sheets[f.sheet],...r,320-r[2]*fit/2,320-r[3]*fit/2,r[2]*fit,r[3]*fit);}else ctx.drawImage(sheets[f.sheet],...r,originX-f.pivot[0]*s,originY-f.pivot[1]*s,r[2]*s,r[3]*s);status.textContent=a.id+' / '+f.id+' / '+step.duration_ms+' ms (preview only) / '+(a.id==='portrait'?'UI portrait fitted separately':'source-to-world scale '+scales[f.sheet]);if(!paused)timer=setTimeout(()=>{if(index+1<a.frames.length)index++;else if(a.loop)index=0;else return;show();},step.duration_ms);}
 select.onchange=()=>{index=0;show();};document.getElementById('toggle').onclick=()=>{paused=!paused;document.getElementById('toggle').textContent=paused?'Play':'Pause';show();};load().catch(e=>status.textContent='Preview failed: '+e.message);
 </script></html>'''.replace('TITLE', title)
     # The marker occurs once as script data; never substitute inside a user title.

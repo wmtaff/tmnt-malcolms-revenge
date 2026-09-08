@@ -137,3 +137,24 @@ class CharacterPipelineTests(unittest.TestCase):
         self.save()
         with self.assertRaisesRegex(ValueError, 'bounds'):
             inspect_character_manifest(self.path)
+
+    def test_sheet_scale_and_native_passthrough_contract(self):
+        self.manifest['sheets'][0]['render_scale'] = .5
+        self.manifest['native_passthrough'] = ['NativeFx']
+        self.manifest['frames'][0]['pivot'] = [-2, 4]
+        self.save()
+        report = inspect_character_manifest(self.path)
+        self.assertEqual(report['sheets'][0]['render_scale'], .5)
+        self.assertEqual(report['native_passthrough_count'], 1)
+        for invalid in [['NativeFx', 'NativeFx'], ['NativeIdle'], [42]]:
+            self.manifest['native_passthrough'] = invalid
+            self.save()
+            with self.assertRaises(ValueError):
+                inspect_character_manifest(self.path)
+
+    def test_scale_and_key_bounds_match_runtime(self):
+        for scale in [.009, 4.01, float('inf'), True]:
+            self.manifest['sheets'][0]['render_scale'] = scale
+            self.save()
+            with self.assertRaises(ValueError):
+                inspect_character_manifest(self.path)

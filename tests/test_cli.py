@@ -11,6 +11,36 @@ from PIL import Image
 
 
 class CliTests(unittest.TestCase):
+    def test_character_inspection_preview_and_controlled_errors(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            image = Image.new('RGBA', (2, 2))
+            image.putpixel((0, 0), (255, 0, 0, 255))
+            image.save(root / 'poses.png')
+            manifest = root / 'manifest.json'
+            manifest.write_text(json.dumps({
+                'schema_version': 1, 'character_id': 'test',
+                'sheets': [{'id': 'poses', 'path': 'poses.png', 'columns': 1, 'rows': 1}],
+                'frames': [{'id': 'idle', 'sheet': 'poses', 'rect': [0, 0, 2, 2], 'pivot': [1, 2]}],
+                'animations': [{'id': 'idle', 'loop': True, 'frames': [{'frame': 'idle', 'duration_ms': 100}]}],
+            }))
+            result, report = self.run_cli('inspect-character', manifest)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(report['structurally_valid'])
+            output = root / 'preview.html'
+            result, report = self.run_cli('preview-character', manifest, output)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(output.is_file())
+            original = output.read_bytes()
+            result, report = self.run_cli('preview-character', manifest, output)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('error', report)
+            self.assertEqual(output.read_bytes(), original)
+            manifest.write_text('{}')
+            result, report = self.run_cli('inspect-character', manifest)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn('error', report)
+
     def test_background_report_and_preview(self):
         with tempfile.TemporaryDirectory() as tmp:
             image = Path(tmp) / 'tile.png'
