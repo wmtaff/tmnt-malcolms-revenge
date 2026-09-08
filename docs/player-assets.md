@@ -39,3 +39,5 @@ CHARACTER_ART_VALIDATED confirms CPU validation; CHARACTER_COVERAGE confirms liv
 ## Verification evidence
 
 The supplied five-sheet candidate passed CPU loading with 33 frames, 134 mapped animations and 16 native passthrough effects. Its scales were movement 0.19, combat/actions/specials 0.27, portrait 1. The exporter produced 150 animations/1148 frame references. The renderer compiled against .NET Framework and pinned Harmony. GPU drawing and pose quality require the separately authorized local playtest; this component task does not launch the game.
+
+Native selector correction: AnimatedObject2dData.Path is a texture folder, not the collection asset filename. Native Load calls LoadTextures(GetFolderSafe(assetPath)); LoadTextures assigns that folder to Path. The renderer therefore normalizes slash direction, trailing slash and case, and matches exact folders such as 2d/animations/players/leonardo and 2d/animations/menu/characterselect/leo. A bounded first-24-folder diagnostic reports CHARACTER_ART_OBSERVED; a Path getter failure reports CHARACTER_ART_PATH_ERROR once. This distinguishes a selector mismatch from a draw/upload failure.

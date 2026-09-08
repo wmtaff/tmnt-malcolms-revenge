@@ -10,10 +10,10 @@ namespace Malcolm.Runtime
     internal static class CharacterArtRuntime
     {
         const BindingFlags F=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static|BindingFlags.Instance;
-        const string PlayerPath="2d/animations/players/leonardo/leonardo";
+        const string PlayerPath="2d/animations/players/leonardo";
         static readonly HashSet<string> PortraitPaths=new HashSet<string>(StringComparer.Ordinal)
         {
-            "2d/animations/hud/playerhud/leo/leo","2d/animations/menu/characterselect/leo/leo","2d/animations/menu/levelcomplete/leo/leo","2d/animations/menu/pause/powerlevel/leo/leo","2d/animations/menu/worldmap/playerpanels/leo/leo"
+            "2d/animations/hud/playerhud/leo","2d/animations/menu/characterselect/leo","2d/animations/menu/levelcomplete/leo","2d/animations/menu/pause/powerlevel/leo","2d/animations/menu/worldmap/playerpanels/leo"
         }
         ;
         static CharacterArtConfig config;
@@ -23,6 +23,8 @@ namespace Malcolm.Runtime
         static bool failed;
         static readonly HashSet<object> checkedCollections=new HashSet<object>();
         static readonly HashSet<string> reported=new HashSet<string>();
+        static readonly HashSet<string> observedPaths=new HashSet<string>();
+        internal static string NormalizeCollectionFolder(string path) { return (path??String.Empty).Replace('\\','/').TrimEnd('/').ToLowerInvariant(); }
         internal static string DisplayName
         {
             get
@@ -110,10 +112,12 @@ namespace Malcolm.Runtime
             string path;
             try
             {
-                path=Convert.ToString(Get(__instance,"Path")).Replace('\\','/').ToLowerInvariant();
+                path=NormalizeCollectionFolder(Convert.ToString(Get(__instance,"Path")));
+                if(observedPaths.Count<24&&observedPaths.Add(path))Log("CHARACTER_ART_OBSERVED folder="+path);
             }
-            catch
+            catch(Exception error)
             {
+                if(observedPaths.Add("<path-error>"))Log("CHARACTER_ART_PATH_ERROR "+error);
                 return true;
             }
             bool player=path==PlayerPath;
@@ -248,10 +252,12 @@ namespace Malcolm.Runtime
             engine=null;
             checkedCollections.Clear();
             reported.Clear();
+            observedPaths.Clear();
         }
         internal static void SelfTest()
         {
             CharacterArtConfig.SelfTest();
+            if(NormalizeCollectionFolder(@"2d\Animations\Players\Leonardo\")!=PlayerPath||!PortraitPaths.Contains(NormalizeCollectionFolder(@"2d\Animations\Menu\CharacterSelect\Leo\")))throw new Exception("Native collection folder selection");
         }
     }
 }
