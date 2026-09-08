@@ -69,6 +69,12 @@ public static partial class RuntimeLauncher {
         return result;
     }
     private static void Patch(Harmony harmony, MethodInfo method, string prefix, string postfix) {
+        // Reflection returns inherited methods with ReflectedType=derived; Harmony 2.2.1
+        // requires the MethodInfo obtained directly from its declaring type.
+        ParameterInfo[] parameters = method.GetParameters();
+        Type[] signature = new Type[parameters.Length];
+        for (int i = 0; i < parameters.Length; i++) signature[i] = parameters[i].ParameterType;
+        method = method.DeclaringType.GetMethod(method.Name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly, null, signature, null);
         harmony.Patch(method, prefix == null ? null : new HarmonyMethod(typeof(RuntimeLauncher), prefix), postfix == null ? null : new HarmonyMethod(typeof(RuntimeLauncher), postfix));
         Log("PATCH " + method.DeclaringType.FullName + "." + method.Name);
     }
@@ -87,7 +93,37 @@ public static partial class RuntimeLauncher {
             if (logFile != null) File.AppendAllText(logFile, line + Environment.NewLine);
         }
     }
+    private static string NormalizeScene(object scene) {
+        return Convert.ToString(Property(scene, "PlayfieldPath")).Replace('\\', '/').ToLowerInvariant();
+    }
+    private static void EncounterBegin(object __instance, out bool __state) {
+        __state = false;
+        string scene = NormalizeScene(Property(__instance, "Scene"));
+        if (scene != "2d/level/scene2d/stage/stage_01/level_01_complete") return;
+        string name = Convert.ToString(Property(__instance, "Name"));
+        object position = Property(__instance, "InitialPosition");
+        Log("ENEMY_RESET name=" + name + " scene=" + scene + " initial=" + position);
+        if (name != "FootSoldierRegular_202") return;
+        FieldInfo x = position.GetType().GetField("X");
+        FieldInfo y = position.GetType().GetField("Y");
+        FieldInfo z = position.GetType().GetField("Z");
+        float originalX = (float)x.GetValue(position);
+        if (originalX != 483f || (float)y.GetValue(position) != 228f || (float)z.GetValue(position) != 0f) {
+            Log("TARGET_GUARD_SKIP unexpected initial=" + position); return;
+        }
+        __state = true;
+        if (baseline) { Log("TARGET_BASELINE name=" + name + " xyz=483,228,0"); return; }
+        x.SetValue(position, 563f);
+        __instance.GetType().GetProperty("InitialPosition").SetValue(__instance, position, null);
+        Log("ENCOUNTER_CHANGED name=" + name + " original=483,228,0 new=563,228,0");
+    }
+    private static void EncounterEnd(object __instance, bool __state) {
+        if (__state) Log("TARGET_AFTER_RESET name=" + Property(__instance, "Name") + " position=" + Property(__instance, "Position") + " initial=" + Property(__instance, "InitialPosition"));
+    }
     private static void InstallEncounterPatch(Harmony harmony, Assembly game) {
-        Log("ENCOUNTER_PENDING exact target awaiting scene inspection");
+        Type enemy = RequireType(game, "Paris.Game.Actor.EnemySpawn");
+        if (!enemy.IsAssignableFrom(RequireType(game, "Paris.Game.Actor.FootSoldier"))) throw new InvalidOperationException("FootSoldier inheritance changed");
+        Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
