@@ -10,6 +10,8 @@ public static partial class RuntimeLauncher {
     private static bool baseline;
     private static string capturePath;
     private static int presentCount;
+    private static bool captureReported;
+    private static bool captureFailureReported;
     private static readonly System.Collections.Generic.HashSet<string> exceptionKeys = new System.Collections.Generic.HashSet<string>();
     private static readonly object logLock = new object();
     [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
@@ -65,26 +67,27 @@ public static partial class RuntimeLauncher {
         Type device = RequireType(Assembly.LoadFrom(Path.Combine(gameDirectory, "FNA.dll")), "Microsoft.Xna.Framework.Graphics.GraphicsDevice");
         Patch(harmony, RequireMethod(device, "Present", 0), "CaptureFrame", null);
         Patch(harmony, RequireMethod(device, "Present", 3), "CaptureFrame", null);
-        Log("FRAME_CAPTURE_ARMED frame=120 path=" + capturePath);
+        Log("FRAME_CAPTURE_ARMED every=120 path=" + capturePath);
     }
     private static void CaptureFrame(object __instance) {
         int frame = ++presentCount;
         if (frame == 1 || frame % 600 == 0) Log("PRESENT frame=" + frame);
-        if (frame != 120) return;
+        if (frame % 120 != 0) return;
         try {
             object parameters = Property(__instance, "PresentationParameters");
             int width = Convert.ToInt32(Property(parameters, "BackBufferWidth"));
             int height = Convert.ToInt32(Property(parameters, "BackBufferHeight"));
             if (width <= 0 || height <= 0 || width > 3840 || height > 2160) throw new InvalidOperationException("Backbuffer outside capture bound");
+            if (54L + (((width * 3 + 3) & ~3) * (long)height) > 8L * 1024 * 1024) throw new InvalidOperationException("Capture exceeds 8 MiB file limit");
             string format = Convert.ToString(Property(parameters, "BackBufferFormat"));
             if (format != "Color") throw new InvalidOperationException("Unsupported backbuffer format " + format);
             byte[] pixels = new byte[checked(width * height * 4)];
             MethodInfo read = RequireMethod(__instance.GetType(), "GetBackBufferData", 1).MakeGenericMethod(typeof(byte));
             read.Invoke(__instance, new object[] { pixels });
             Directory.CreateDirectory(Path.GetDirectoryName(capturePath));
-            using (Stream output = new FileStream(capturePath, FileMode.CreateNew, FileAccess.Write)) WriteBitmap(output, pixels, width, height);
-            Log("FRAME_CAPTURED frame=" + frame + " size=" + width + "x" + height + " path=" + capturePath);
-        } catch (Exception error) { Log("FRAME_CAPTURE_FAILED " + error); }
+            using (Stream output = new FileStream(capturePath, FileMode.Create, FileAccess.Write)) WriteBitmap(output, pixels, width, height);
+            if (!captureReported) { captureReported = true; Log("FRAME_CAPTURED updatesEvery=120 frame=" + frame + " size=" + width + "x" + height + " path=" + capturePath); }
+        } catch (Exception error) { if (!captureFailureReported) { captureFailureReported = true; Log("FRAME_CAPTURE_FAILED " + error); } }
     }
     private static void WriteBitmap(Stream output, byte[] rgba, int width, int height) {
         if (width <= 0 || height <= 0 || width > 3840 || height > 2160 || rgba.Length != checked(width * height * 4)) throw new ArgumentException("Invalid bounded RGBA image");
@@ -221,6 +224,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 
