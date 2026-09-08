@@ -16,7 +16,7 @@ The script never launches the game. After a successful build, close existing gam
 
 ```powershell
 & ./local/playtest/Malcolm.Runtime.exe --self-test
-& ./local/playtest/Malcolm.Runtime.exe "$PWD/local/playtest" "$PWD/local/playtest/runtime.log"
+& ./local/playtest/Malcolm.Runtime.exe "$PWD/local/playtest" "$PWD/local/playtest/runtime.log" --encounter "$PWD/encounters/episode1-lobby.json"
 # Baseline without the patch:
 & ./local/playtest/Malcolm.Runtime.exe "$PWD/local/playtest" "$PWD/local/playtest/baseline.log" --baseline
 ```
@@ -28,4 +28,6 @@ When launching through `Start-Process`, use `-WindowStyle Normal`: `Hidden` can 
 Each launch requires a fresh `.log` filename in an existing directory. Existing diagnostic files and reparse paths are rejected to prevent accidental overwrites. Optional `MALCOLM_CAPTURE_FRAME` likewise requires a fresh `.bmp` filename; see [verification instructions](runtime-verification.md).
 
 Windows CI separately downloads and verifies the pinned Harmony package, compiles the launcher with the .NET Framework compiler, and runs `--self-test` without any game assets. This exercises the surrogate runtime patches; it does not replace a gameplay check.
+
+The encounter version also compiles the configuration, native adapter, CLI options, hooks, and their test files, with the Framework `System.Web.Extensions.dll` reference for JSON parsing. It requires explicit `--baseline` or `--encounter <file>` selection. It no longer forces display mode or scale. See [current prototype verification limits](encounter-prototype.md) before running it.
 

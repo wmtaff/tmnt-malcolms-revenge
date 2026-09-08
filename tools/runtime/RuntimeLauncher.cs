@@ -10,6 +10,7 @@ public static partial class RuntimeLauncher {
     private static StreamWriter logWriter;
     private static FileStream captureStream;
     private static bool baseline;
+    private static EncounterConfig encounter;
     private static string capturePath;
     private static int presentCount;
     private static bool captureReported;
@@ -22,11 +23,11 @@ public static partial class RuntimeLauncher {
     public static int Main(string[] args) {
         try {
             if (args.Length == 1 && args[0] == "--self-test") { SelfTest(); return 0; }
-            if (args.Length < 2 || args.Length > 3 || (args.Length == 3 && args[2] != "--baseline"))
-                throw new ArgumentException("Usage: RuntimeLauncher.exe <game-dir> <log-file> [--baseline] or --self-test");
-            gameDirectory = Path.GetFullPath(args[0]);
-            logFile = Path.GetFullPath(args[1]);
-            baseline = args.Length == 3;
+            RuntimeOptions options = RuntimeOptions.Parse(args);
+            gameDirectory = Path.GetFullPath(options.GameDirectory);
+            logFile = Path.GetFullPath(options.LogPath);
+            baseline = options.Baseline;
+            if (!baseline) encounter = EncounterConfig.Load(Path.GetFullPath(options.EncounterPath));
 
             if (!Environment.Is64BitProcess) throw new InvalidOperationException("A 64-bit launcher is required");
             ValidatePlaytest(gameDirectory);
@@ -54,7 +55,7 @@ public static partial class RuntimeLauncher {
             InstallRenderDiagnostics(harmony);
             MethodInfo main = RequireMethod(RequireType(game, "Paris.Program"), "Main", 1);
             Log("HOOKS_READY entering Paris.Program.Main");
-            main.Invoke(null, new object[] { new string[] { "-AllowMultiInstance", "-Windowed", "-scale=2" } });
+            main.Invoke(null, new object[] { new string[] { "-AllowMultiInstance" } });
             Log("GAME_RETURNED");
             return 0;
         } catch (Exception error) {
@@ -219,42 +220,9 @@ public static partial class RuntimeLauncher {
     private static string NormalizeScene(object scene) {
         return Convert.ToString(Property(scene, "PlayfieldPath")).Replace('\\', '/').ToLowerInvariant();
     }
-    private static void EncounterBegin(object __instance, out bool __state) {
-        __state = false;
-        string scene = NormalizeScene(Property(__instance, "Scene"));
-        if (scene != "2d/level/playfield/stage/stage_01/level_01_art") return;
-        string name = Convert.ToString(Property(__instance, "Name"));
-        object position = Property(__instance, "InitialPosition");
-        Log("ENEMY_RESET name=" + name + " scene=" + scene + " initial=" + position);
-        if (name != "FootSoldierRegular_202" || !new Guid("6f229aef-a56f-4457-b5a0-60d158b48fb1").Equals(Property(__instance, "Id"))) return;
-        FieldInfo x = position.GetType().GetField("X");
-        FieldInfo y = position.GetType().GetField("Y");
-        FieldInfo z = position.GetType().GetField("Z");
-        float originalX = (float)x.GetValue(position);
-        if (originalX != 483f || (float)y.GetValue(position) != 228f || (float)z.GetValue(position) != 0f) {
-            Log("TARGET_GUARD_SKIP unexpected initial=" + position); return;
-        }
-        __state = true;
-        if (baseline) { Log("TARGET_BASELINE name=" + name + " xyz=483,228,0"); return; }
-        x.SetValue(position, 563f);
-        __instance.GetType().GetProperty("InitialPosition").SetValue(__instance, position, null);
-        Log("ENCOUNTER_CHANGED name=" + name + " original=483,228,0 new=563,228,0");
-    }
-    private static void EncounterEnd(object __instance, bool __state) {
-        if (__state) Log("TARGET_AFTER_RESET name=" + Property(__instance, "Name") + " position=" + Property(__instance, "Position") + " initial=" + Property(__instance, "InitialPosition"));
-    }
     private static void InstallEncounterPatch(Harmony harmony, Assembly game) {
-        Type enemy = RequireType(game, "Paris.Game.Actor.EnemySpawn");
-        if (!enemy.IsAssignableFrom(RequireType(game, "Paris.Game.Actor.FootSoldier"))) throw new InvalidOperationException("FootSoldier inheritance changed");
-        Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
+        if (encounter == null) return;
+        Type block = RequireType(game, "Paris.Game.Triggers.CameraBlockTrigger");
+        Patch(harmony, RequireMethod(block, "InternalStartWave", 0), "ConfiguredWaveBegin", "ConfiguredWaveEnd");
     }
 }}
-
-
-
-
-
-
-
-
-

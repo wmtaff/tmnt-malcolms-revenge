@@ -142,7 +142,7 @@ foreach ($name in $expected.Keys) {
 }
 if (-not (Test-Path -LiteralPath (Join-Path $source 'Content') -PathType Container)) { throw 'Source Content directory is missing.' }
 $compiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$launcherSources = @((Join-Path $PSScriptRoot 'RuntimeLauncher.cs'), (Join-Path $PSScriptRoot 'RuntimeLauncherTests.cs'))
+$launcherSources = @('RuntimeLauncher.cs','RuntimeLauncherTests.cs','RuntimeOptions.cs','EncounterConfig.cs','EncounterConfigTests.cs','EncounterRuntime.cs','EncounterRuntimeTests.cs','EncounterHooks.cs') | ForEach-Object { Join-Path $PSScriptRoot $_ }
 foreach ($required in @($compiler) + $launcherSources) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw "Required build input missing: $required" }
 }
@@ -189,7 +189,7 @@ foreach ($file in Get-ChildItem -LiteralPath $content -File -Recurse -Force) {
 Install-File $harmony (Join-Path $destination '0Harmony.dll')
 Write-SteamAppId $destination
 $compiled = Join-Path $dependencies ([Guid]::NewGuid().ToString() + '.exe')
-& $compiler /nologo /platform:x64 /target:exe "/reference:$harmony" "/out:$compiled" $launcherSources
+& $compiler /nologo /platform:x64 /target:exe /reference:System.Web.Extensions.dll "/reference:$harmony" "/out:$compiled" $launcherSources
 if ($LASTEXITCODE -ne 0) { throw "Runtime compilation failed with exit code $LASTEXITCODE" }
 Install-File $compiled (Join-Path $destination 'Malcolm.Runtime.exe')
 [IO.File]::Delete($compiled)

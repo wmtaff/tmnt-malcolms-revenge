@@ -1,0 +1,25 @@
+# Episode 1 encounter prototype
+
+The sample `encounters/episode1-lobby.json` edits the first three existing waves of CamBlock01. It uses the installed game's Foot Soldiers, camera block, difficulty rules, and wave progression. It does not create a new level slot or replace the rest of Episode 1.
+
+| Wave | Enemy | Original position | Prototype position | Delay to next wave |
+|---|---|---|---|---|
+| Lobby entry | Regular_202 | 483,228,0 | 523,228,0 | 0.25 → 0.75 seconds |
+| Lower approach | Regular_204 | 552,224,0 | 572,244,0 | 0.25 → 1.25 seconds |
+| Upper pressure | Regular_106 | 616,224,0 | 596,208,0 | 4 → 2 seconds |
+
+These are initial playtest choices, not validated balance. The delay is the native delay **to the next wave**, not a spawn timer. Native completion thresholds remain 0, 0, and 1; the third wave therefore retains the game's existing overlap behavior with the following wave. Each of these three native groups contains one selected enemy.
+
+Before the first wave starts, the runtime checks scene, camera block identity, all three wave groups and expected delays, group membership, enemy identity, and original positions. Only after every check succeeds does it apply the edits. A mismatch logs `ENCOUNTER_REJECTED` and leaves the original encounter in place. Later `NATIVE_ENEMY_SPAWN` entries report the position after the game resets each enemy. Configuration is read once per launch; restart after editing it.
+
+The JSON schema requires exactly three ordered wave indexes (0,1,2) in the same block. Input is bounded to 64 KiB, 32 enemy edits per wave, finite coordinates in ±100000, and delays from 0 to 60 seconds. Unknown fields, duplicate keys and selectors, and type coercions are rejected. Those bounds prevent malformed input; they do not establish that arbitrary coordinates are playable.
+
+See [playtest controls](playtest-controls.md) for visible launch, status, and rollback. The baseline mode disables encounter edits. Saved display preferences are honored. Progress remains unsaved in both modes.
+
+## Verification status
+
+The native probe identified the wave records and selectors in the installed build. The previous single-enemy experiment was verified in live gameplay. This configurable three-wave prototype still needs its own live playtest.
+
+All 47 Python tests pass, including synthetic launch/status/stop coverage. An independently compiled test program containing only the configuration and edit/rollback logic (no Harmony, launcher, or game code) passes the configuration tests, adapter tests, and sample-file validation. Review also verified the native hook signatures against the installed game.
+
+During local verification on 2026-09-08, Microsoft Defender blocked the newly compiled combined runtime self-test executable as `Trojan:MSIL/Injuke.AMMA!MTB`. Protection was not disabled and no exclusion was added. The cause of that detection has not been established; compilation alone is not a passing combined runtime test. Resolve the detection through review before attempting a local prototype launch.

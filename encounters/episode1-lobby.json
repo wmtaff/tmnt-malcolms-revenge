@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "malcolms-lobby-prototype",
+  "playfield": "2d/level/playfield/stage/stage_01/level_01_art",
+  "waves": [
+    {
+      "id": "lobby-entry",
+      "blockId": "eb9f578d-d4d7-420c-8f58-9be9d0d6d67c",
+      "blockName": "CamBlock01",
+      "waveIndex": 0,
+      "groupId": "#CamBlock01_Wave01",
+      "expectedDelay": 0.25,
+      "delay": 0.75,
+      "enemies": [{
+        "id": "6f229aef-a56f-4457-b5a0-60d158b48fb1",
+        "name": "FootSoldierRegular_202",
+        "original": {"x": 483, "y": 228, "z": 0},
+        "position": {"x": 523, "y": 228, "z": 0}
+      }]
+    },
+    {
+      "id": "lower-approach",
+      "blockId": "eb9f578d-d4d7-420c-8f58-9be9d0d6d67c",
+      "blockName": "CamBlock01",
+      "waveIndex": 1,
+      "groupId": "#CamBlock01_Wave02",
+      "expectedDelay": 0.25,
+      "delay": 1.25,
+      "enemies": [{
+        "id": "6eed4341-b571-43c6-b5e4-7d35a091df9e",
+        "name": "FootSoldierRegular_204",
+        "original": {"x": 552, "y": 224, "z": 0},
+        "position": {"x": 572, "y": 244, "z": 0}
+      }]
+    },
+    {
+      "id": "upper-pressure",
+      "blockId": "eb9f578d-d4d7-420c-8f58-9be9d0d6d67c",
+      "blockName": "CamBlock01",
+      "waveIndex": 2,
+      "groupId": "#CamBlock01_Wave03",
+      "expectedDelay": 4,
+      "delay": 2,
+      "enemies": [{
+        "id": "6c032bff-be15-4f54-bbd1-def9775efc35",
+        "name": "FootSoldierRegular_106",
+        "original": {"x": 616, "y": 224, "z": 0},
+        "position": {"x": 596, "y": 208, "z": 0}
+      }]
+    }
+  ]
+}
