@@ -2,11 +2,13 @@
 
 A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: Shredder's Revenge, with a reusable AI-assisted sprite pipeline.
 
-**Status:** a summer suburban level prototype now renders generated house, street, and park backgrounds in an isolated playtest using the native Baxter stage. Live logs confirm scene redirection, background rendering, and progression into the native boss fight. Combat gating and boss victory remain under verification. A reusable OpenAI generation-and-review workflow saves prompts and validates background candidates; no game-ready custom-character exporter exists yet.
+The [reusable workflow index](docs/workflows.md) links inspection, runtime builds, playtesting, encounters, backgrounds, and character creation. The [character authoring guide](docs/adding-characters.md) records the complete Malcolm process, including generation corrections, manifest authoring, native integration, and verification.
+
+**Status:** a summer suburban level prototype renders generated house, street, and park backgrounds in an isolated playtest using the native Baxter stage. Live logs confirm scene redirection, background rendering, and progression into the native boss fight. Combat gating and boss victory remain under verification. Malcolm's original character pack, native contract exporter, manifest validator/preview, and optional Leo-slot renderer are implemented; see [character verification](docs/character-verification.md) for completed checks and remaining visual review.
 
 See [summer prototype verification](docs/residential-verification.md), [background workflow](docs/background-pipeline.md), and [continuous Street View route generation issue](https://github.com/wmtaff/tmnt-malcolms-revenge/issues/1).
 
-The next milestone is [custom playable character support](docs/custom-player-plan.md): export the native animation contract, prove an existing-slot artwork replacement, then expand to complete animation coverage and optionally a new roster identity.
+The [custom playable character plan](docs/custom-player-plan.md) separates the current existing-slot appearance prototype from bespoke animation refinement and a future independent roster identity.
 
 See [runtime build and launch instructions](docs/runtime-build.md) and [verification evidence](docs/runtime-verification.md).
 

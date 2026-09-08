@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generator": "OpenAI built-in image generation",
+  "reference": "Approved Malcolm v3 concept with wooden reference axe; personal reference photographs are not included",
+  "selected": [
+    {
+      "file": "movement.png",
+      "notes": "Edited rejected checkerboard output to a magenta key; repaired running axes.",
+      "sha256": "f9e6332655f5fdb482bf029ab3047b217c6fd00e237e569219c9739df68c3367"
+    },
+    {
+      "file": "combat.png",
+      "notes": "Edited initial combat sheet to increase cell margins and prevent axe clipping.",
+      "sha256": "c9bb48c5f80a20f6632af91c9d108d83bd63f0dd781a176575d8d91fee8d8ab5"
+    },
+    {
+      "file": "actions.png",
+      "prompt": "Create the next EIGHTPOSE animationbank for approved Malcolm pixelcharacter, matching referencebody/headscale andstyle. FOUR equalcolumns TWO equalrows 2:1canvas, backgrounduniformpureMAGENTA #FF00FF. Eachfigure entirelywithinitscell, minimum12%padding, nooverlap, no labels/grid/shadows. All rightfacing, exactsamechild brownhairstyle limegreenshirt navyshorts greenwhitesneakers and pale flatwooden doubleheadedVikingaxe withtwoheadholes andtoploop. Spritebody roughly60%cellheight (matchsmallcombatbankreference, notenlarged). TOPROW:1 jumpingup kneesbent axeheldnearbody;2 airborneaxeattack bothhands axeextendeddiagonallyforward legs tucked;3 falling feetdownkneesbent axeheldguard;4 landingcrouch bothfeetdownaxeheldforward. BOTTOMROW:5 cartoonyknockdown lyingonback headleftfeetright axeheldbesidebody noinjury;6 gettingup ononeknee supportingwithfreehand axeotherhand;7 grabbing/reachingwithleftarmforward otherhandholdsaxebackwardsaside;8 throwfollowthrough botharmsforward leaningright axeheldinonehandnotreleased. Axepresentcompleteallposes; usebroadreadablephysicalactions. Preservetheexactface, clothingandwoodcutoutaxe. Crispdarkpurpleoutlines deliberatechunkypixels, compactpalette, no softshading. Groundedposefeetbaseline82%cellheight; airbornefigures can sitabovebaselinebutremainwholeincell. Transparent-intended regions includingaxeholesmustsolidpureMAGENTA tokeylater. No othercharacters, no impacts/gore/injuries/text. Eightdistinctsprites only.",
+      "notes": "Generated airborne, knockdown, recovery, grab, and throw poses.",
+      "sha256": "c8471e845074be5824130fe137abe4114a1dc34f70a9f232f23ee5730ba091ad"
+    },
+    {
+      "file": "specials.png",
+      "prompt": "Generate EIGHT additional animationposes forMalcolm, exactlysamepixelboyasreference andsamepale onepiecewoodendoubleheaded Vikingaxe withtwoheadcutouts/toploop. FOUR equalcolumns TWO equalrows on2:1widecanvas, pureuniformMAGENTA #FF00FF entirebackground andaxeholes. No labels, checkerboard, shadows, orgrid. Eachfigure fitswhollyinonecell minimum12%emptyborder, bodyheightabout60%cell, consistentheadsizeandoutfit, rightfacingthreequartercamera. TOPROW:1 specialspinwindup torso turnedaway axeoutbehind;2 specialspinfront torso turnedtowardcamera axearcingforward no drawntrails;3 friendlytaunt playfulwink raisingfreefist axeheldupright;4 cheerfulvictory raisingaxeabovehead withtwohands. BOTTOMROW:5 seatedtireddefeatpose kneesbent axeacrosslap (awake, noinjury);6 recoveringstandingupfromcrouch withaxe;7 rightwardflyingkick onelegextendedright bodyhorizontalish axetuckedagainsttorso;8 balancedreadylandingpose holdingaxeverticalbyshoulder. ExactgreenTshirt/navyshorts/greensneakers/sweptbrownhair fromreference. Crispdarkpurpleoutlines,chunkypixelclusters,limitedcolors,no smooth3Dshading. No damage, blood, effects,othercharacters or extraweapons. Entireaxevisibleeverysprite, don'tcroponcelledges. Eightdifferentposesonly.",
+      "notes": "Generated special, taunt, victory, and recovery poses.",
+      "sha256": "5880928af2e668f1dd098ea73545ae5c6f7926641a51b0e4095c77855ff4900c"
+    },
+    {
+      "file": "portrait.png",
+      "prompt": "Create a square CHARACTER SELECTION PORTRAIT sprite for Malcolm based on the approved reference character sheet. Single head-and-shoulders portrait only, friendly confident smile, recognizable sweptlightbrownhair, warmbrown/hazeleyes, rosycheeks, sameyoungboyage, limegreenshirt, facingrightthreequarters. Keepface/hairlikenessexactlyfromreferenceportrait. Crispchunkypixelart, darkpurpleoutline, limitedcelshading, no smoothpaintingor3D. Centerwholeheadandshoulderswith15%paddingaround on UNIFORM PURE MAGENTA #FF00FF background intendedforcolorkey. No labels, noMALCOLMtitle,noaxe,noadditionalposes,no frame,no shadow,no checkerboard. Mainportraitfills70%canvaswidthandheight. Allouterbackgroundexactmagenta.",
+      "notes": "Generated separate UI portrait.",
+      "sha256": "3c842e5571a43eebb3809841472a1c881b79509cc0eaa546d34ee97d9d0512fe"
+    }
+  ],
+  "earlier_prompts": [
+    {
+      "purpose": "Initial movement attempt rejected: painted checkerboard instead of alpha"
+    },
+    {
+      "purpose": "Initial combat generation: cell spacing required revision"
+    }
+  ],
+  "processing": "Original generated PNG bytes preserved. Runtime import removes declared magenta key and premultiplies remaining alpha. No generated native hitboxes or event timings.",
+  "status": "32-pose first playable candidate; artwork is shared across native body animations; live verification pending"
+}

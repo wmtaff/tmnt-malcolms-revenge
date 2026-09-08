@@ -1,0 +1,1017 @@
+{
+  "schema_version": 1,
+  "character_id": "malcolm",
+  "display_name": "Malcolm",
+  "donor": "Leo",
+  "render_scale": 0.27,
+  "sheets": [
+    {
+      "id": "movement",
+      "path": "movement.png",
+      "columns": 4,
+      "rows": 2,
+      "chroma_key": [
+        255,
+        0,
+        255
+      ],
+      "chroma_tolerance": 32,
+      "render_scale": 0.19
+    },
+    {
+      "id": "combat",
+      "path": "combat.png",
+      "columns": 4,
+      "rows": 2,
+      "chroma_key": [
+        255,
+        0,
+        255
+      ],
+      "chroma_tolerance": 32,
+      "render_scale": 0.27
+    },
+    {
+      "id": "actions",
+      "path": "actions.png",
+      "columns": 4,
+      "rows": 2,
+      "chroma_key": [
+        255,
+        0,
+        255
+      ],
+      "chroma_tolerance": 32,
+      "render_scale": 0.27
+    },
+    {
+      "id": "specials",
+      "path": "specials.png",
+      "columns": 4,
+      "rows": 2,
+      "chroma_key": [
+        255,
+        0,
+        255
+      ],
+      "chroma_tolerance": 32,
+      "render_scale": 0.27
+    },
+    {
+      "id": "portrait",
+      "path": "portrait.png",
+      "columns": 1,
+      "rows": 1,
+      "chroma_key": [
+        255,
+        0,
+        255
+      ],
+      "chroma_tolerance": 32,
+      "render_scale": 1
+    }
+  ],
+  "frames": [
+    {
+      "id": "idle1",
+      "sheet": "movement",
+      "rect": [
+        0,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        192,
+        437
+      ]
+    },
+    {
+      "id": "idle2",
+      "sheet": "movement",
+      "rect": [
+        443,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        198,
+        437
+      ]
+    },
+    {
+      "id": "walk1",
+      "sheet": "movement",
+      "rect": [
+        887,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        197,
+        437
+      ]
+    },
+    {
+      "id": "walk2",
+      "sheet": "movement",
+      "rect": [
+        1330,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        178,
+        437
+      ]
+    },
+    {
+      "id": "walk3",
+      "sheet": "movement",
+      "rect": [
+        0,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        206,
+        425
+      ]
+    },
+    {
+      "id": "walk4",
+      "sheet": "movement",
+      "rect": [
+        443,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        199,
+        425
+      ]
+    },
+    {
+      "id": "run1",
+      "sheet": "movement",
+      "rect": [
+        887,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        222,
+        389
+      ]
+    },
+    {
+      "id": "run2",
+      "sheet": "movement",
+      "rect": [
+        1330,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        222,
+        404
+      ]
+    },
+    {
+      "id": "windup",
+      "sheet": "combat",
+      "rect": [
+        0,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        231,
+        381
+      ]
+    },
+    {
+      "id": "strike",
+      "sheet": "combat",
+      "rect": [
+        443,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        192,
+        381
+      ]
+    },
+    {
+      "id": "followthrough",
+      "sheet": "combat",
+      "rect": [
+        887,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        183,
+        381
+      ]
+    },
+    {
+      "id": "guard",
+      "sheet": "combat",
+      "rect": [
+        1330,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        192,
+        381
+      ]
+    },
+    {
+      "id": "overhead",
+      "sheet": "combat",
+      "rect": [
+        0,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        237,
+        345
+      ]
+    },
+    {
+      "id": "slam",
+      "sheet": "combat",
+      "rect": [
+        443,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        189,
+        345
+      ]
+    },
+    {
+      "id": "hurt",
+      "sheet": "combat",
+      "rect": [
+        887,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        234,
+        345
+      ]
+    },
+    {
+      "id": "crouch",
+      "sheet": "combat",
+      "rect": [
+        1330,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        184,
+        345
+      ]
+    },
+    {
+      "id": "jump",
+      "sheet": "actions",
+      "rect": [
+        0,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        235,
+        380
+      ]
+    },
+    {
+      "id": "airattack",
+      "sheet": "actions",
+      "rect": [
+        443,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        200,
+        380
+      ]
+    },
+    {
+      "id": "fall",
+      "sheet": "actions",
+      "rect": [
+        887,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        224,
+        390
+      ]
+    },
+    {
+      "id": "land",
+      "sheet": "actions",
+      "rect": [
+        1330,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        187,
+        389
+      ]
+    },
+    {
+      "id": "knockdown",
+      "sheet": "actions",
+      "rect": [
+        0,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        216,
+        346
+      ]
+    },
+    {
+      "id": "getup",
+      "sheet": "actions",
+      "rect": [
+        443,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        181,
+        329
+      ]
+    },
+    {
+      "id": "grab",
+      "sheet": "actions",
+      "rect": [
+        887,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        197,
+        329
+      ]
+    },
+    {
+      "id": "throw",
+      "sheet": "actions",
+      "rect": [
+        1330,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        187,
+        334
+      ]
+    },
+    {
+      "id": "spin1",
+      "sheet": "specials",
+      "rect": [
+        0,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        270,
+        383
+      ]
+    },
+    {
+      "id": "spin2",
+      "sheet": "specials",
+      "rect": [
+        443,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        213,
+        393
+      ]
+    },
+    {
+      "id": "taunt",
+      "sheet": "specials",
+      "rect": [
+        887,
+        0,
+        443,
+        443
+      ],
+      "pivot": [
+        218,
+        393
+      ]
+    },
+    {
+      "id": "victory",
+      "sheet": "specials",
+      "rect": [
+        1330,
+        0,
+        444,
+        443
+      ],
+      "pivot": [
+        227,
+        393
+      ]
+    },
+    {
+      "id": "defeat",
+      "sheet": "specials",
+      "rect": [
+        0,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        216,
+        351
+      ]
+    },
+    {
+      "id": "recover",
+      "sheet": "specials",
+      "rect": [
+        443,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        193,
+        351
+      ]
+    },
+    {
+      "id": "flyingkick",
+      "sheet": "specials",
+      "rect": [
+        887,
+        443,
+        443,
+        444
+      ],
+      "pivot": [
+        218,
+        351
+      ]
+    },
+    {
+      "id": "ready",
+      "sheet": "specials",
+      "rect": [
+        1330,
+        443,
+        444,
+        444
+      ],
+      "pivot": [
+        225,
+        351
+      ]
+    },
+    {
+      "id": "portrait",
+      "sheet": "portrait",
+      "rect": [
+        167,
+        98,
+        910,
+        1104
+      ],
+      "pivot": [
+        455,
+        1104
+      ]
+    }
+  ],
+  "animations": [
+    {
+      "id": "idle",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "idle1",
+          "duration_ms": 220
+        },
+        {
+          "frame": "idle2",
+          "duration_ms": 220
+        }
+      ]
+    },
+    {
+      "id": "walk",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "walk1",
+          "duration_ms": 100
+        },
+        {
+          "frame": "walk2",
+          "duration_ms": 100
+        },
+        {
+          "frame": "walk3",
+          "duration_ms": 100
+        },
+        {
+          "frame": "walk4",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "run1",
+          "duration_ms": 80
+        },
+        {
+          "frame": "run2",
+          "duration_ms": 80
+        }
+      ]
+    },
+    {
+      "id": "attack",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "windup",
+          "duration_ms": 60
+        },
+        {
+          "frame": "windup",
+          "duration_ms": 60
+        },
+        {
+          "frame": "strike",
+          "duration_ms": 60
+        },
+        {
+          "frame": "strike",
+          "duration_ms": 60
+        },
+        {
+          "frame": "followthrough",
+          "duration_ms": 60
+        },
+        {
+          "frame": "guard",
+          "duration_ms": 60
+        }
+      ]
+    },
+    {
+      "id": "heavy",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "overhead",
+          "duration_ms": 100
+        },
+        {
+          "frame": "overhead",
+          "duration_ms": 100
+        },
+        {
+          "frame": "slam",
+          "duration_ms": 100
+        },
+        {
+          "frame": "followthrough",
+          "duration_ms": 100
+        },
+        {
+          "frame": "guard",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "id": "jump",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "jump",
+          "duration_ms": 140
+        },
+        {
+          "frame": "fall",
+          "duration_ms": 140
+        }
+      ]
+    },
+    {
+      "id": "airattack",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "jump",
+          "duration_ms": 100
+        },
+        {
+          "frame": "airattack",
+          "duration_ms": 100
+        },
+        {
+          "frame": "fall",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "id": "land",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "land",
+          "duration_ms": 120
+        },
+        {
+          "frame": "guard",
+          "duration_ms": 120
+        }
+      ]
+    },
+    {
+      "id": "hurt",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "hurt",
+          "duration_ms": 140
+        }
+      ]
+    },
+    {
+      "id": "knockdown",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "hurt",
+          "duration_ms": 150
+        },
+        {
+          "frame": "knockdown",
+          "duration_ms": 150
+        }
+      ]
+    },
+    {
+      "id": "down",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "knockdown",
+          "duration_ms": 250
+        }
+      ]
+    },
+    {
+      "id": "getup",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "getup",
+          "duration_ms": 160
+        },
+        {
+          "frame": "recover",
+          "duration_ms": 160
+        },
+        {
+          "frame": "ready",
+          "duration_ms": 160
+        }
+      ]
+    },
+    {
+      "id": "grab",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "grab",
+          "duration_ms": 160
+        }
+      ]
+    },
+    {
+      "id": "throw",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "grab",
+          "duration_ms": 140
+        },
+        {
+          "frame": "throw",
+          "duration_ms": 140
+        },
+        {
+          "frame": "guard",
+          "duration_ms": 140
+        }
+      ]
+    },
+    {
+      "id": "spin",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "spin1",
+          "duration_ms": 100
+        },
+        {
+          "frame": "spin2",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "id": "taunt",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "taunt",
+          "duration_ms": 250
+        },
+        {
+          "frame": "ready",
+          "duration_ms": 250
+        }
+      ]
+    },
+    {
+      "id": "victory",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "victory",
+          "duration_ms": 400
+        },
+        {
+          "frame": "taunt",
+          "duration_ms": 400
+        }
+      ]
+    },
+    {
+      "id": "defeat",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "defeat",
+          "duration_ms": 400
+        }
+      ]
+    },
+    {
+      "id": "kick",
+      "loop": false,
+      "frames": [
+        {
+          "frame": "jump",
+          "duration_ms": 100
+        },
+        {
+          "frame": "flyingkick",
+          "duration_ms": 100
+        },
+        {
+          "frame": "land",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "id": "crouch",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "crouch",
+          "duration_ms": 180
+        }
+      ]
+    },
+    {
+      "id": "portrait",
+      "loop": true,
+      "frames": [
+        {
+          "frame": "portrait",
+          "duration_ms": 1000
+        }
+      ]
+    }
+  ],
+  "native_animation_map": {
+    "Idle": "idle",
+    "JumpFall": "jump",
+    "JumpRoll": "jump",
+    "JumpUp": "jump",
+    "Walk": "walk",
+    "WalkUp": "walk",
+    "Attack": "attack",
+    "AttackFinisher": "attack",
+    "Sprint": "run",
+    "Attack2": "attack",
+    "Attack3": "attack",
+    "Hitstun1": "hurt",
+    "KnockdownBounce": "knockdown",
+    "KnockdownDown": "down",
+    "KnockdownFall": "knockdown",
+    "KnockdownGetup": "getup",
+    "KnockdownKo": "defeat",
+    "KnockdownKoBounce": "defeat",
+    "KnockdownStunned": "defeat",
+    "KnockdownUp": "knockdown",
+    "Grab": "grab",
+    "Held": "hurt",
+    "Shoulderthrow": "throw",
+    "Flingtoss": "throw",
+    "Flingslam": "throw",
+    "DivekickLoop": "kick",
+    "DivekickStartup": "kick",
+    "Shoulderbash": "attack",
+    "LaunchedImpact": "knockdown",
+    "LaunchedLoop": "knockdown",
+    "Wallsplat": "knockdown",
+    "AttackSpecial1": "spin",
+    "Backflip": "jump",
+    "Roundoff": "jump",
+    "LevelcompleteLoop": "victory",
+    "LevelcompleteStartup": "victory",
+    "Dropinhole": "jump",
+    "AttackMoving": "attack",
+    "Backkick": "kick",
+    "HeavyswingFirststrike": "heavy",
+    "HeavyswingCharging": "heavy",
+    "HeavyswingHold": "heavy",
+    "HeavyswingStartup": "heavy",
+    "RisingkickApex": "kick",
+    "RisingkickAscending": "kick",
+    "RisingkickAscendingLoop": "kick",
+    "RisingkickLanding": "land",
+    "RisingkickDescending": "kick",
+    "FlyingguillotineLoop": "kick",
+    "FlyingguillotineRecovery": "land",
+    "FlyingguillotineStartup": "kick",
+    "FlyingkickImpulse": "kick",
+    "FlyingkickLoop": "kick",
+    "FlyingkickRecovery": "land",
+    "FlyingkickStartup": "kick",
+    "Idlewait": "idle",
+    "HitstunUppercut": "hurt",
+    "Hitstun2": "hurt",
+    "Homerunswing": "heavy",
+    "HitstunHitfrombehind": "hurt",
+    "HitstunStomach": "hurt",
+    "Rollbackward": "crouch",
+    "Rollforward": "crouch",
+    "Taunt": "taunt",
+    "Revive": "getup",
+    "TubularspinThrownAttackloop": "throw",
+    "TubularspinThrownBouncebackloop": "throw",
+    "TubularspinThrownStartup": "throw",
+    "HeldLasso": "hurt",
+    "HitstunStomachLight": "hurt",
+    "SlidingkickLoop": "kick",
+    "SlidingkickRecovery": "land",
+    "SlidingkickStartup": "kick",
+    "GrabbedMauser": "grab",
+    "GrabbedMauserMash": "grab",
+    "WhirlwindEnd": "spin",
+    "WhirlwindLoop": "spin",
+    "GrabbedMothermauserLoop": "grab",
+    "GrabbedMothermauserStart": "grab",
+    "SwingingChargeGrab": "grab",
+    "SwingingChargeGrabAntic": "grab",
+    "SwingingChargeGrabEnd": "grab",
+    "Cheerup": "victory",
+    "SprintStop": "idle",
+    "Turn": "idle",
+    "HeavyswingAttack": "heavy",
+    "RadicalmodeEnd": "getup",
+    "RadicalmodeStart": "idle",
+    "CheapskateSprintforwardEnd": "idle",
+    "CheapskateSprintforwardLoop": "run",
+    "CheapskateSprintforwardStart": "run",
+    "SpecialflyingkickLoop": "kick",
+    "SpecialflyingkickRecovery": "land",
+    "SpecialflyingkickStartup": "kick",
+    "HitstunFrozenEnd": "hurt",
+    "HitstunFrozenLoop": "hurt",
+    "HitstunFrozenStart": "hurt",
+    "Hitstun1Heavy": "hurt",
+    "Hitstun2Heavy": "hurt",
+    "HitstunElectrifiedEnd": "hurt",
+    "HitstunElectrifiedLoop": "hurt",
+    "SandwichAttackEnd": "attack",
+    "SandwichAttackLoop": "attack",
+    "SandwichAttackStartup": "attack",
+    "TubularspinThrowStartup": "throw",
+    "TubularspinThrowReady": "throw",
+    "KnockdownSquishedLoop": "down",
+    "KnockdownSquishedStartup": "knockdown",
+    "HitstunBurntEnd": "hurt",
+    "HitstunBurntLoop": "hurt",
+    "HitstunBurntStart": "hurt",
+    "GrabbedPizzamonster": "grab",
+    "Grabbedm3": "grab",
+    "HitstunDizzyEnd": "hurt",
+    "HitstunDizzyLoop": "hurt",
+    "HitstunDizzyStart": "hurt",
+    "Facegrabbed": "hurt",
+    "FacegrabbedKnockdownFall": "knockdown",
+    "FacegrabbedKnockdownUp": "knockdown",
+    "Teleport": "idle",
+    "Sprintstopcutscene": "idle",
+    "ReviveEnd": "getup",
+    "ReviveStart": "getup",
+    "GrabbedMothermauserMash": "grab",
+    "HeldLassoMash": "hurt",
+    "HeldMash": "hurt",
+    "Levelcompletecutscenea": "victory",
+    "Levelcompletecutsceneb": "victory",
+    "SpecialdivekickLoop": "kick",
+    "SpecialdivekickRecovery": "land",
+    "SpecialdivekickStartup": "kick",
+    "HitstunFrozenCrystalLoop": "hurt",
+    "HitstunFrozenCrystalStart": "hurt",
+    "FacegrabbedCrystal": "hurt"
+  },
+  "native_passthrough": [
+    "AttackSpecial1Fx",
+    "HeavyswingAttackFx",
+    "HeavyswingFirststrikeFx",
+    "SpecialflyingkickvfxLoop",
+    "SpecialflyingkickvfxRecovery",
+    "SpecialflyingkickvfxStartup",
+    "AttackFx",
+    "Attack2Fx",
+    "Attack3Fx",
+    "AttackFinisherFx",
+    "AttackMovingFx",
+    "WhirlwindEndFx",
+    "HomerunswingFx",
+    "HitstunBurntFlamefx",
+    "LightmoteLoop",
+    "LightmoteStart"
+  ],
+  "coverage_note": "Original 32-pose bank shared across native body states. Native effects retained. Mapped names do not imply bespoke animation coverage."
+}
