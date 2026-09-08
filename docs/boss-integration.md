@@ -18,9 +18,15 @@ and retains the actual StageData object.
 
 Scene2d.ForcedSpawnPos is honored both by player spawn and BeatEmUpCamera.Reset.
 The latter snaps to the nearest waypoint and disables earlier camera blocks using
-the game's own checkpoint behavior. The proposed `(5900,360,0)` approach still
-requires runtime collision and camera verification. No game was launched during
-this implementation.
+the game's own checkpoint behavior. The residential route starts at
+`(4250,360,0)` and follows the existing camera path toward Baxter. Its Reset
+postfix verifies the six exact intermediate camera blocks, then applies the
+native checkpoint end callback, disabled flag, and camera-list removal to blocks
+11 through 16. A matching TriggerBlock prefix also prevents the trigger-volume
+entry path from starting those encounters. Boss and post-boss blocks remain.
+The former `(5900,360,0)` short approach remains research evidence, not the
+implemented start. The longer route still requires runtime collision and camera
+verification. No game was launched during this implementation.
 
 The boss camera block's native sequence is Hop, BossIntro, BossBanner, BossFight.
 At its PostReset prefix, all original identities and memberships are preflighted.
@@ -39,7 +45,9 @@ retain the native death and level completion logic.
 
 `ResidentialRuntimeTests.cs` is a separate synthetic runner, **not a launcher
 source input**. Its native-shaped stand-ins verify actor transfer, wave insertion,
-and rollback on insertion failure. It does not establish in-game compatibility.
+and rollback on insertion failure. It also verifies route identity preflight,
+repeated reset behavior, and preservation of the boss camera. It does not
+establish in-game compatibility.
 
 The optional `tools/boss-probe/BossProbe.cs` extends the bounded base-record
 inspection pattern to Baxter, BaxterLaser, FootShortMelee, and PlayerSpawnPoint.

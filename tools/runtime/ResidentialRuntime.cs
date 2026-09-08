@@ -18,11 +18,14 @@ internal static class ResidentialRuntime {
     private static readonly string[] Owners={"#CamBlock15_MP3","#CamBlock15_MP2","#CamBlock15_MP1"};
     private static readonly float[] OldX={5392,5464,5536};
     private static readonly float[] NewX={6096,6152,6208};
+    private static readonly string[] RouteIds={"045e4b20-04bf-46d1-8d58-bb90a6582bac","f30a3cb8-3e82-481f-b3c9-b6b6c80c16d9","3befdc61-fe75-41c9-adf0-98d859493d4d","05633fe4-05fc-479b-942c-c73d9bc43d0f","e44cc08a-8d79-4130-929c-69ffe2a268f5","7030b144-5e4e-4716-99d5-199e0d206d8c"};
     private const BindingFlags Flags=BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Instance|BindingFlags.Static;
     internal static void Install(Harmony harmony,Assembly gameAssembly,Assembly engineAssembly,Action<string> logger) {
         game=gameAssembly;engine=engineAssembly;log=logger;
         Patch(harmony,game.GetType("Paris.Game.GameInfo",true).GetProperty("CurrentStageData").GetSetMethod(),"SelectStage");
         Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("PostReset",Flags),"PrepareBoss");
+        Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("TriggerBlock",Flags),"AllowTrigger");
+        harmony.Patch(game.GetType("Paris.Game.Actor.Camera.BeatEmUpCamera",true).GetMethod("Reset",Flags),null,new HarmonyMethod(typeof(ResidentialRuntime),"PrepareRoute"));
         log("RESIDENTIAL_READY Episode1 routes to native Stage12 boss approach");
     }
     private static void Patch(Harmony harmony,MethodInfo method,string prefix) {
@@ -51,9 +54,35 @@ internal static class ResidentialRuntime {
         if(!HasScene(target,Scene12))throw new InvalidOperationException("Native Stage12 lookup failed");
         PropertyInfo spawn=engine.GetType("Paris.Engine.Scene.Scene2d",true).GetProperty("ForcedSpawnPos",Flags);
         if(previousForcedSpawn==null)previousForcedSpawn=spawn.GetValue(null,null);
-        spawn.SetValue(null,Vector(spawn.PropertyType,5900,360,0),null);
+        spawn.SetValue(null,Vector(spawn.PropertyType,4250,360,0),null);
         __args[0]=target;
-        log("RESIDENTIAL_STAGE selected native Stage12 forcedSpawn=5900,360,0");
+        log("RESIDENTIAL_STAGE selected native Stage12 forcedSpawn=4250,360,0");
+    }
+    private static bool IsRouteBlock(object block) {
+        for(int i=0;i<RouteIds.Length;i++)if(new Guid(RouteIds[i]).Equals(Get(block,"Id")))return Convert.ToString(Get(block,"Name"))=="CamBlock"+(11+i);
+        return false;
+    }
+    private static bool AllowTrigger(object __instance) {
+        // Trigger volumes can also enter TriggerBlock independently of the camera list.
+        return !IsRouteBlock(__instance)||Norm(Get(Get(__instance,"Scene"),"PlayfieldPath"))!=Playfield12;
+    }
+    private static void PrepareRoute(object __instance) {
+        object scene=Get(__instance,"Scene");if(Norm(Get(scene,"PlayfieldPath"))!=Playfield12)return;
+        var cameraBlocks=(IList)__instance.GetType().GetField("_camBlocks",Flags).GetValue(__instance);
+        var skip=new object[RouteIds.Length];
+        // Validate every identity before native callbacks can alter any end-of-block objects.
+        for(int i=0;i<skip.Length;i++) {
+            skip[i]=Actor(scene,new Guid(RouteIds[i]));
+            if(!IsRouteBlock(skip[i]))throw new InvalidOperationException("Residential route block mismatch");
+        }
+        object boss=Actor(scene,new Guid("8cbcf846-5120-4edf-82f4-a2f344678e2a"));
+        if(Convert.ToString(Get(boss,"Name"))!="CamBlockBoss"||!cameraBlocks.Contains(boss))throw new InvalidOperationException("Residential boss camera missing");
+        foreach(object block in skip) {
+            // Same callbacks and list removal as the native forced-spawn checkpoint path.
+            if(!(bool)Get(block,"DebugDisabled"))Invoke(block,"ToggleEndOfBlock",new[]{typeof(bool)},true);
+            Set(block,"DebugDisabled",true);cameraBlocks.Remove(block);
+        }
+        log("RESIDENTIAL_ROUTE native blocks11..16 skipped; boss camera retained");
     }
     private static void PrepareBoss(object __instance) {
         if(!new Guid("8cbcf846-5120-4edf-82f4-a2f344678e2a").Equals(Get(__instance,"Id"))||Convert.ToString(Get(__instance,"Name"))!="CamBlockBoss")return;
