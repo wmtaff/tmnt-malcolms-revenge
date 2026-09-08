@@ -8,6 +8,8 @@ public static partial class RuntimeLauncher {
     private static string gameDirectory;
     private static string logFile;
     private static bool baseline;
+    private static string capturePath;
+    private static int presentCount;
     private static readonly System.Collections.Generic.HashSet<string> exceptionKeys = new System.Collections.Generic.HashSet<string>();
     private static readonly object logLock = new object();
     [DllImport("kernel32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
@@ -44,9 +46,10 @@ public static partial class RuntimeLauncher {
             Patch(harmony, RequireMethod(scene, "Load", 0), "SceneBegin", "SceneEnd");
             Patch(harmony, RequireMethod(scene, "LoadPlayfield", 0), "SceneBegin", "SceneEnd");
             InstallEncounterPatch(harmony, game);
+            InstallRenderDiagnostics(harmony);
             MethodInfo main = RequireMethod(RequireType(game, "Paris.Program"), "Main", 1);
             Log("HOOKS_READY entering Paris.Program.Main");
-            main.Invoke(null, new object[] { new string[] { "-AllowMultiInstance", "-Windowed" } });
+            main.Invoke(null, new object[] { new string[] { "-AllowMultiInstance", "-Windowed", "-scale=2" } });
             Log("GAME_RETURNED");
             return 0;
         } catch (Exception error) {
@@ -54,6 +57,51 @@ public static partial class RuntimeLauncher {
             Console.Error.WriteLine(error);
             return 1;
         }
+    }
+    private static void InstallRenderDiagnostics(Harmony harmony) {
+        capturePath = Environment.GetEnvironmentVariable("MALCOLM_CAPTURE_FRAME");
+        if (String.IsNullOrEmpty(capturePath)) return;
+        capturePath = Path.GetFullPath(capturePath);
+        Type device = RequireType(Assembly.LoadFrom(Path.Combine(gameDirectory, "FNA.dll")), "Microsoft.Xna.Framework.Graphics.GraphicsDevice");
+        Patch(harmony, RequireMethod(device, "Present", 0), "CaptureFrame", null);
+        Patch(harmony, RequireMethod(device, "Present", 3), "CaptureFrame", null);
+        Log("FRAME_CAPTURE_ARMED frame=120 path=" + capturePath);
+    }
+    private static void CaptureFrame(object __instance) {
+        int frame = ++presentCount;
+        if (frame == 1 || frame % 600 == 0) Log("PRESENT frame=" + frame);
+        if (frame != 120) return;
+        try {
+            object parameters = Property(__instance, "PresentationParameters");
+            int width = Convert.ToInt32(Property(parameters, "BackBufferWidth"));
+            int height = Convert.ToInt32(Property(parameters, "BackBufferHeight"));
+            if (width <= 0 || height <= 0 || width > 3840 || height > 2160) throw new InvalidOperationException("Backbuffer outside capture bound");
+            string format = Convert.ToString(Property(parameters, "BackBufferFormat"));
+            if (format != "Color") throw new InvalidOperationException("Unsupported backbuffer format " + format);
+            byte[] pixels = new byte[checked(width * height * 4)];
+            MethodInfo read = RequireMethod(__instance.GetType(), "GetBackBufferData", 1).MakeGenericMethod(typeof(byte));
+            read.Invoke(__instance, new object[] { pixels });
+            Directory.CreateDirectory(Path.GetDirectoryName(capturePath));
+            using (Stream output = new FileStream(capturePath, FileMode.CreateNew, FileAccess.Write)) WriteBitmap(output, pixels, width, height);
+            Log("FRAME_CAPTURED frame=" + frame + " size=" + width + "x" + height + " path=" + capturePath);
+        } catch (Exception error) { Log("FRAME_CAPTURE_FAILED " + error); }
+    }
+    private static void WriteBitmap(Stream output, byte[] rgba, int width, int height) {
+        if (width <= 0 || height <= 0 || width > 3840 || height > 2160 || rgba.Length != checked(width * height * 4)) throw new ArgumentException("Invalid bounded RGBA image");
+        int stride = (width * 3 + 3) & ~3;
+        var writer = new BinaryWriter(output);
+        writer.Write((byte)'B'); writer.Write((byte)'M'); writer.Write(54 + stride * height);
+        writer.Write(0); writer.Write(54); writer.Write(40); writer.Write(width); writer.Write(-height);
+        writer.Write((short)1); writer.Write((short)24); writer.Write(0); writer.Write(stride * height);
+        writer.Write(0); writer.Write(0); writer.Write(0); writer.Write(0);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int index = (y * width + x) * 4;
+                writer.Write(rgba[index + 2]); writer.Write(rgba[index + 1]); writer.Write(rgba[index]);
+            }
+            for (int padding = width * 3; padding < stride; padding++) writer.Write((byte)0);
+        }
+        writer.Flush();
     }
     private static void ValidatePlaytest(string directory) {
         string marker = Path.Combine(directory, ".malcolm-playtest.json");
@@ -173,6 +221,7 @@ public static partial class RuntimeLauncher {
         Patch(harmony, RequireMethod(enemy, "Reset", 0), "EncounterBegin", "EncounterEnd");
     }
 }}
+
 
 
 

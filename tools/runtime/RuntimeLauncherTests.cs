@@ -5,6 +5,12 @@ using HarmonyLib;
 namespace Malcolm.Runtime {
 public static partial class RuntimeLauncher {
     private static void SelfTest() {
+        using (var bmp = new System.IO.MemoryStream()) {
+            WriteBitmap(bmp, new byte[] {255,0,0,255, 0,0,255,255}, 2, 1);
+            byte[] bytes = bmp.ToArray();
+            if (bytes.Length != 62 || bytes[0] != 66 || bytes[1] != 77 || bytes[54] != 0 || bytes[56] != 255 || bytes[57] != 255 || bytes[59] != 0)
+                throw new Exception("BMP header or RGB channel conversion wrong");
+        }
         var h = new Harmony("malcolm.runtime.selftest");
         MethodInfo target = typeof(Surrogate).GetMethod("Save");
         h.Patch(target, prefix: new HarmonyMethod(typeof(RuntimeLauncher).GetMethod("SuppressWrite", BindingFlags.Static | BindingFlags.NonPublic)));
@@ -45,6 +51,7 @@ public static partial class RuntimeLauncher {
         [MethodImpl(MethodImplOptions.NoInlining)] public void Save() { Writes++; }
     }
 }}
+
 
 
 
