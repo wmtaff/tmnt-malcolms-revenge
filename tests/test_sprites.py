@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -66,3 +67,14 @@ class SpriteTests(unittest.TestCase):
             for value in [0, -1, 1.5, True]:
                 with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                     validate_sprite(self.path, **{key: value})
+
+    def test_oversized_sprite_is_rejected_before_conversion(self):
+        Image.new('RGBA', (1025, 1024), 'red').save(self.path)
+        with patch.object(Image.Image, 'convert', side_effect=AssertionError('Do not decode')):
+            with self.assertRaisesRegex(ValueError, 'individual frames'):
+                validate_sprite(self.path)
+
+    def test_pixel_limit_accepts_boundary(self):
+        Image.new('RGBA', (4, 4), 'red').save(self.path)
+        with patch('tmnt_mod.sprites.MAX_SPRITE_PIXELS', 16):
+            self.assertTrue(validate_sprite(self.path)['valid'])

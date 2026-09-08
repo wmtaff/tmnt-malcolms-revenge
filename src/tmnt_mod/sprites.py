@@ -5,6 +5,9 @@ from pathlib import Path
 from PIL import Image
 
 
+MAX_SPRITE_PIXELS = 1024 * 1024
+
+
 def validate_sprite(path, width=None, height=None, max_colors=None):
     """Report the first image frame; bounds use exclusive right/bottom edges.
 
@@ -19,6 +22,11 @@ def validate_sprite(path, width=None, height=None, max_colors=None):
     warnings = []
     with Image.open(path) as source:
         actual_width, actual_height = source.size
+        if actual_width * actual_height > MAX_SPRITE_PIXELS:
+            raise ValueError(
+                f'Image exceeds the {MAX_SPRITE_PIXELS:,}-pixel sprite limit; '
+                'validate individual frames instead of a full sheet.'
+            )
         mode = source.mode
         has_alpha = 'A' in source.getbands() or 'transparency' in source.info
         if getattr(source, 'n_frames', 1) > 1:
