@@ -25,8 +25,12 @@ native checkpoint end callback, disabled flag, and camera-list removal to blocks
 11 through 16. A matching TriggerBlock prefix also prevents the trigger-volume
 entry path from starting those encounters. Boss and post-boss blocks remain.
 The former `(5900,360,0)` short approach remains research evidence, not the
-implemented start. The longer route still requires runtime collision and camera
-verification. No game was launched during this implementation.
+implemented start. Native collision tile data has continuous FLOOR tiles across
+x=4240..6455 and y=352..455, with the right WALL beginning at x=6456. The tile
+map uses 8-pixel cells and indexes its collision-mask table with TileID minus one.
+Lab protrusions occupy rows above y=352. The camera waypoint path is a straight
+line from (0,312) to (6464,312). Dynamic actor collision and actual camera framing
+still require runtime verification. No game was launched during this implementation.
 
 The boss camera block's native sequence is Hop, BossIntro, BossBanner, BossFight.
 At its PostReset prefix, all original identities and memberships are preflighted.
