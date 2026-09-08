@@ -1,4 +1,5 @@
 import base64
+import html
 import tempfile
 import unittest
 from pathlib import Path
@@ -96,3 +97,28 @@ class BackgroundTests(unittest.TestCase):
             duration=100, loop=0)
         with self.assertRaisesRegex(ValueError, 'single-frame'):
             inspect_background(self.image)
+
+    def test_preview_escapes_filename_and_does_not_embed_local_paths(self):
+        source = self.root / "street '& review.png"
+        Image.new('RGB', (2, 2)).save(source)
+        output = self.root / 'repeat.html'
+        write_repeat_preview(source, output)
+        document = output.read_text(encoding='utf-8')
+        self.assertIn(html.escape(source.name), document)
+        self.assertNotIn(source.name, document)
+        self.assertNotIn(str(self.root), document)
+
+    def test_palette_over_counting_limit_is_unknown_not_truncated(self):
+        image = Image.new('RGB', (257, 256))
+        image.putdata([(i & 255, (i >> 8) & 255, i >> 16) for i in range(257 * 256)])
+        image.save(self.image)
+        report = inspect_background(self.image)
+        self.assertIsNone(report['palette']['visible_colors'])
+        self.assertFalse(report['palette']['exact'])
+
+    def test_corrupt_input_does_not_create_preview(self):
+        self.image.write_bytes(b'not an image')
+        output = self.root / 'repeat.html'
+        with self.assertRaises(OSError):
+            write_repeat_preview(self.image, output)
+        self.assertFalse(output.exists())
