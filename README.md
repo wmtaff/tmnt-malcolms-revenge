@@ -2,7 +2,9 @@
 
 A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: Shredder's Revenge, with a reusable AI-assisted sprite pipeline.
 
-**Status:** development foundations. The tools inspect local files and validate sprites. There is no playable custom level, verified mod loader, image-generation adapter, or game-ready sprite exporter yet.
+**Status:** runtime encounter proof in progress. The tools inspect local files and validate sprites. A source-built launcher starts the supported Steam build in a separate playtest copy, suppresses save writes, and targets one Episode 1 enemy spawn. Startup and rendered title-screen capture have been observed; the encounter change still needs live verification. There is no playable custom level, image-generation adapter, or game-ready sprite exporter yet.
+
+See [runtime build and launch instructions](docs/runtime-build.md) and [verification evidence](docs/runtime-verification.md).
 
 ## Quick start
 

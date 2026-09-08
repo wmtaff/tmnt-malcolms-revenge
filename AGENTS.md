@@ -1,6 +1,6 @@
 # Development instructions
 
-Read README.md and docs/design.md before changing behavior. The first milestone is local inspection and validation; do not describe it as a playable mod.
+Read README.md, docs/design.md, and docs/runtime-design.md before changing behavior. The first milestone is local inspection and validation; the second is a controlled runtime encounter proof. Do not describe either as a complete new level.
 
 ## Coordination
 
@@ -12,6 +12,7 @@ Read README.md and docs/design.md before changing behavior. The first milestone 
 ## Project boundaries
 
 - Inspection code must not execute game assemblies or write into Steam folders.
+- The separately authorized runtime experiment may execute game assemblies in an isolated local playtest copy. Do not weaken the original inspection commands' read-only guarantees.
 - Keep game files, ripped assets, generated reports, and credentials out of Git. Use ignored `local/` and `artifacts/` directories.
 - Never extract an archive wholesale to discover its contents. Validate paths and bound decompression.
 - Image providers are interchangeable. No API key belongs in source or test fixtures. Use synthetic images for CI.
