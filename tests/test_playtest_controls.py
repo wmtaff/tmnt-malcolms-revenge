@@ -106,8 +106,14 @@ Thread.Sleep(10000);
                 if Path(str(log) + '.capture').exists():
                     break
                 time.sleep(.02)
-            expected = ['--baseline'] if iteration == 0 else ['--encounter', str(config)]
-            self.assertEqual(log.read_text().splitlines(), [str(self.stage), str(log), *expected])
+            received = log.read_text().splitlines()
+            self.assertEqual(len(received), 3 if iteration == 0 else 4)
+            # Windows CI may supply an 8.3 TEMP alias; the launcher expands it.
+            self.assertTrue(os.path.samefile(received[0], self.stage))
+            self.assertTrue(os.path.samefile(received[1], log))
+            self.assertEqual(received[2], '--baseline' if iteration == 0 else '--encounter')
+            if iteration == 1:
+                self.assertTrue(os.path.samefile(received[3], config))
             self.assertEqual(Path(str(log) + '.capture').read_text(), session['capture'])
             self.assertNotEqual(str(log), previous_log)
             self.assertIn('running', self.invoke('Status').stdout)
