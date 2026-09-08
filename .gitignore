@@ -1,0 +1,16 @@
+.worktrees/
+.superpowers/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+local/
+artifacts/
+visual_assets/
+*.zip
+*.dll
+*.exe
