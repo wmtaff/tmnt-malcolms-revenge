@@ -1,7 +1,12 @@
 using System;using System.Collections;using System.Collections.Generic;using System.Reflection;
 namespace Paris.Engine.Scene {
+ public class Scene2d{public static Paris.Game.Actor.Vec ForcedSpawnPos{get;set;}}
  public class GameObjectGroup {public enum GroupType{Activation} public string Name{get;set;} public GroupType Type{get;set;} public int Difficulty{get;set;} public Dictionary<Guid,object> Members{get;set;} public GameObjectGroup(){Members=new Dictionary<Guid,object>();}}
  public class GroupID {public string ID{get;set;}public GroupID(string id){ID=id;}}
+}
+namespace Paris.Game.System {
+ public class StageData{public List<string> ScenePaths{get;set;}}
+ public class StageList{public static StageList Singleton{get;set;}public List<StageData> Items{get;set;}}
 }
 namespace Paris.Game.Actor {
  public struct Vec {public float X,Y,Z;public Vec(float x,float y,float z){X=x;Y=y;Z=z;}}
@@ -10,6 +15,7 @@ namespace Paris.Game.Actor {
 }
 namespace Malcolm.Runtime {
 internal static class ResidentialRuntimeTests {
+ public class StageReceiver{private Paris.Game.System.StageData data;public Paris.Game.System.StageData CurrentStageData{get{return data;}[System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]set{data=value;}}}
  public class Wave {public Paris.Engine.Scene.GroupID Group{get;set;} public bool StartActive{get;set;}public bool Disabled{get;set;} public int EnemyThresholdToNextWave{get;set;}public float DelayToNextWave{get;set;}public int AvailableDifficulty{get;set;}}
  public class Block{public IList Waves{get;set;}}
  public class Data{public object GameObject{get;set;}}
@@ -47,6 +53,13 @@ internal static class ResidentialRuntimeTests {
   if(ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Heart03",path)||!ResidentialRuntime.ShouldRenderDecoration(animated,Guid.NewGuid(),"Heart03",path)||!ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Heart03","another/scene")||!ResidentialRuntime.ShouldRenderDecoration(animated,heart,"Wrong",path)||!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.BasicShadowAnimatedGameObject",heart,"Heart03",path))throw new Exception("Decoration exact selector failed");
   if(!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.BasicShadowAnimatedGameObject",new Guid("d09c60ed-39ca-401c-ab0c-3d090c50d91a"),"CutsceneBaxter",path)||!ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.TextureGameObject",new Guid("0b1d668c-f0fa-4ec2-a90f-dbe122c9c83d"),"BG_Ground02",path))throw new Exception("Boss actor or replacement ground hidden");
   if(ResidentialRuntime.ShouldRenderDecoration("Paris.Engine.GameObject.TextureGameObject",new Guid("a0bc8949-605f-4fca-aa46-92d0f17baffb"),"BG_OL07",path))throw new Exception("Static decoration retained");
+  type.GetField("game",BindingFlags.NonPublic|BindingFlags.Static).SetValue(null,Assembly.GetExecutingAssembly());
+  var first=new Paris.Game.System.StageData{ScenePaths=new List<string>{"2d/Level/Scene2d/Stage/Stage_01/Level_01_complete"}};var lastStage=new Paris.Game.System.StageData{ScenePaths=new List<string>{"2d/Level/Scene2d/Stage/Stage_12/Level_12_complete"}};
+  Paris.Game.System.StageList.Singleton=new Paris.Game.System.StageList{Items=new List<Paris.Game.System.StageData>{first,lastStage}};
+  var harmony=new HarmonyLib.Harmony("Malcolm.Residential.SetterRegression");harmony.Patch(typeof(StageReceiver).GetProperty("CurrentStageData").GetSetMethod(),new HarmonyLib.HarmonyMethod(type,"SelectStage"));
+  var receiver=new StageReceiver();receiver.CurrentStageData=first;
+  if(!Object.ReferenceEquals(receiver.CurrentStageData,lastStage)||Paris.Engine.Scene.Scene2d.ForcedSpawnPos.X!=4250)throw new Exception("Real Harmony setter did not replace native stage argument");
+  harmony.UnpatchAll(harmony.Id);
   Console.WriteLine("RESIDENTIAL_SELF_TEST_PASS transfer rollback route preflight idempotency boss preservation decorative selectors");return 0;
  }catch(Exception e){Console.Error.WriteLine(e);return 1;}}
 }}

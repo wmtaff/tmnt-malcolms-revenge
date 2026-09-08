@@ -16,6 +16,13 @@ There is no verified startup argument for level selection. Native scene paths ar
 case-sensitive in GetStageDataByScenePath, so selection compares normalized paths
 and retains the actual StageData object.
 
+The setter prefix uses an explicit `ref object __0` argument. A real Harmony
+2.2.1 regression demonstrated that replacing an element of `object[] __args`
+does not reach the native setter in this version; it only changed the diagnostic
+copy. The test now patches a native-shaped setter with the actual profile prefix
+and checks object identity after assignment. A Stage.Init prefix independently
+checks the selected metadata before native scene paths are loaded.
+
 Scene2d.ForcedSpawnPos is honored both by player spawn and BeatEmUpCamera.Reset.
 The latter snaps to the nearest waypoint and disables earlier camera blocks using
 the game's own checkpoint behavior. The residential route starts at

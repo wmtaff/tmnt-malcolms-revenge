@@ -25,6 +25,7 @@ internal static class ResidentialRuntime {
     internal static void Install(Harmony harmony,Assembly gameAssembly,Assembly engineAssembly,Action<string> logger) {
         game=gameAssembly;engine=engineAssembly;log=logger;
         Patch(harmony,game.GetType("Paris.Game.GameInfo",true).GetProperty("CurrentStageData").GetSetMethod(),"SelectStage");
+        Patch(harmony,game.GetType("Paris.Game.System.Stage",true).GetMethod("Init",Flags|BindingFlags.DeclaredOnly),"ValidateStageBoundary");
         Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("PostReset",Flags),"PrepareBoss");
         Patch(harmony,game.GetType("Paris.Game.Triggers.CameraBlockTrigger",true).GetMethod("TriggerBlock",Flags),"AllowTrigger");
         harmony.Patch(game.GetType("Paris.Game.Actor.Camera.BeatEmUpCamera",true).GetMethod("Reset",Flags),null,new HarmonyMethod(typeof(ResidentialRuntime),"PrepareRoute"));
@@ -60,9 +61,11 @@ internal static class ResidentialRuntime {
         object scene=Get(__instance,"Scene");if(scene==null)return true;
         return ShouldRenderDecoration(__instance.GetType().FullName,(Guid)Get(__instance,"Id"),Convert.ToString(Get(__instance,"Name")),Convert.ToString(Get(scene,"PlayfieldPath")));
     }
-    private static void SelectStage(object[] __args) {
-        if(!HasScene(__args[0],Scene1)) {
-            if(previousForcedSpawn!=null && !HasScene(__args[0],Scene12)) {
+    private static void SelectStage(ref object __0) {
+        // Harmony 2.2.1 exposes __args as a copy. Explicit ref argument injection
+        // is required for replacement to reach the native setter.
+        if(!HasScene(__0,Scene1)) {
+            if(previousForcedSpawn!=null && !HasScene(__0,Scene12)) {
                 engine.GetType("Paris.Engine.Scene.Scene2d",true).GetProperty("ForcedSpawnPos",Flags).SetValue(null,previousForcedSpawn,null);
                 previousForcedSpawn=null;
             }
@@ -75,8 +78,14 @@ internal static class ResidentialRuntime {
         PropertyInfo spawn=engine.GetType("Paris.Engine.Scene.Scene2d",true).GetProperty("ForcedSpawnPos",Flags);
         if(previousForcedSpawn==null)previousForcedSpawn=spawn.GetValue(null,null);
         spawn.SetValue(null,Vector(spawn.PropertyType,4250,360,0),null);
-        __args[0]=target;
+        __0=target;
         log("RESIDENTIAL_STAGE selected native Stage12 forcedSpawn=4250,360,0");
+    }
+    private static void ValidateStageBoundary() {
+        object info=game.GetType("Paris.Game.GameInfo",true).GetProperty("Singleton",Flags).GetValue(null,null);
+        object stage=Get(info,"CurrentStageData");
+        if(HasScene(stage,Scene1))throw new InvalidOperationException("Residential redirect did not reach native Stage.Init");
+        if(HasScene(stage,Scene12))log("RESIDENTIAL_STAGE_LOAD verified native Stage12 before scene loading");
     }
     private static bool IsRouteBlock(object block) {
         for(int i=0;i<RouteIds.Length;i++)if(new Guid(RouteIds[i]).Equals(Get(block,"Id")))return Convert.ToString(Get(block,"Name"))=="CamBlock"+(11+i);
