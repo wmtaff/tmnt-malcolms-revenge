@@ -12,6 +12,7 @@ All sheet paths are relative to the directory containing the manifest. Original 
 {
   "schema_version": 1,
   "character_id": "malcolm",
+  "display_name": "Malcolm",
   "render_scale": 0.2,
   "sheets": [
     {"id": "basic", "path": "basic.png", "columns": 4, "rows": 2,
@@ -33,6 +34,8 @@ All sheet paths are relative to the directory containing the manifest. Original 
 ```
 
 Rectangles are integer `[x, y, width, height]` in source pixels, with the source image's top-left at `(0,0)`. Pivots are explicit `[x, y]` relative to the rectangle's top-left corner, each finite and within −4096..4096. A pivot may lie outside the rectangle; this supports deliberate native-style origins but can place art off-screen if misconfigured. Inspect the foot/contact position and choose pivots deliberately. No hitbox or pivot is inferred. IDs start with a letter and contain only letters, digits, `_`, or `-`, up to 64 characters. IDs must be unique within sheets, frames, or animations.
+
+`display_name` is required nonempty text of at most 256 characters without control characters. The selection UI uses it as a presentation label while keeping the native donor identity unchanged. `character_id` is the stable machine identifier and does not itself create a new roster slot.
 
 `render_scale` is an optional finite source-pixel-to-world-pixel scale within 0.01..4, defaulting to 1. A sheet's `render_scale` overrides the global value, allowing pose sheets with different drawn character heights to share a consistent in-game size. Choose it against visible alpha bounds and the desired in-game size, then verify in game; the example value is not universal. Body animations share one fixed browser camera and zoom so sheet-scale differences remain visible. The `portrait` animation is fitted separately because runtime portraits fit native UI regions rather than using body world scale.
 

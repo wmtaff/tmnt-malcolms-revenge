@@ -22,7 +22,7 @@ def _integer(value):
 
 
 def _number(value):
-    return type(value) in (int, float) and math.isfinite(value)
+    return type(value) is int or (type(value) is float and math.isfinite(value))
 
 
 def _identifier(value):
@@ -71,6 +71,10 @@ def _analyze(path):
     _require(isinstance(document, dict) and type(document.get('schema_version')) is int and document['schema_version'] == 1,
              'Expected character schema_version 1.')
     _require(_identifier(document.get('character_id')), 'Invalid character_id.')
+    display_name = document.get('display_name')
+    _require(isinstance(display_name, str) and display_name.strip() and len(display_name) <= 256
+             and not any(ord(char) < 32 or 127 <= ord(char) <= 159 for char in display_name),
+             'display_name must be nonempty text up to 256 characters without controls.')
     scale = document.get('render_scale', 1)
     _require(_number(scale) and .01 <= scale <= 4, 'render_scale must be finite and in 0.01..4.')
     sheets = _unique(document.get('sheets'), 8, 'sheet')
@@ -106,7 +110,7 @@ def _analyze(path):
              'native_passthrough must be a bounded list of nonempty native names.')
     _require(len(set(passthrough)) == len(passthrough) and not set(passthrough).intersection(native_map),
              'native_passthrough must be unique and disjoint from native_animation_map.')
-    report = {'schema_version': 1, 'character_id': document['character_id'], 'structurally_valid': True,
+    report = {'schema_version': 1, 'character_id': document['character_id'], 'display_name': display_name, 'structurally_valid': True,
               'render_scale': scale, 'sheets': [], 'frames': [], 'animation_count': len(animations),
               'native_mapping_count': len(native_map), 'native_passthrough_count': len(passthrough), 'warnings': [],
               'interpretation': 'Structural review only. Preview timing does not replace native combat timing; native coverage is not established.'}

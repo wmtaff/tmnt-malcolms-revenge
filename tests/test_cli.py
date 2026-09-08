@@ -19,7 +19,7 @@ class CliTests(unittest.TestCase):
             image.save(root / 'poses.png')
             manifest = root / 'manifest.json'
             manifest.write_text(json.dumps({
-                'schema_version': 1, 'character_id': 'test',
+                'schema_version': 1, 'character_id': 'test', 'display_name': 'Test Character',
                 'sheets': [{'id': 'poses', 'path': 'poses.png', 'columns': 1, 'rows': 1}],
                 'frames': [{'id': 'idle', 'sheet': 'poses', 'rect': [0, 0, 2, 2], 'pivot': [1, 2]}],
                 'animations': [{'id': 'idle', 'loop': True, 'frames': [{'frame': 'idle', 'duration_ms': 100}]}],

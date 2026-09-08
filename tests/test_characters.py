@@ -19,7 +19,7 @@ class CharacterPipelineTests(unittest.TestCase):
         image.save(self.root / 'poses.png')
         self.path = self.root / 'manifest.json'
         self.manifest = {
-            'schema_version': 1, 'character_id': 'malcolm', 'render_scale': .2,
+            'schema_version': 1, 'character_id': 'malcolm', 'display_name': 'Malcolm', 'render_scale': .2,
             'sheets': [{'id': 'poses', 'path': 'poses.png', 'columns': 2, 'rows': 2}],
             'frames': [
                 {'id': 'idle_a', 'sheet': 'poses', 'rect': [0, 0, 3, 2], 'pivot': [1, 2]},
@@ -153,8 +153,15 @@ class CharacterPipelineTests(unittest.TestCase):
                 inspect_character_manifest(self.path)
 
     def test_scale_and_key_bounds_match_runtime(self):
-        for scale in [.009, 4.01, float('inf'), True]:
+        for scale in [.009, 4.01, float('inf'), True, 10 ** 400]:
             self.manifest['sheets'][0]['render_scale'] = scale
+            self.save()
+            with self.assertRaises(ValueError):
+                inspect_character_manifest(self.path)
+
+    def test_display_name_matches_runtime_presentation_contract(self):
+        for name in [None, '', 'Bad\nName', 123]:
+            self.manifest['display_name'] = name
             self.save()
             with self.assertRaises(ValueError):
                 inspect_character_manifest(self.path)
