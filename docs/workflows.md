@@ -2,6 +2,8 @@
 
 This index connects the procedures for building and verifying the mod. Start with the workflow for the result you want; research notes explain why an approach was chosen but do not replace its acceptance checks.
 
+For another Codex session or machine, start with the [portable skill and installation guide](reusable-skill.md).
+
 | Result | Procedure | Required evidence |
 | --- | --- | --- |
 | Inspect an installed game or asset archive | [Quick start](../README.md#quick-start), [inspection verification](verification.md) | Bounded JSON reports, source fingerprints, no changes to original files |

@@ -1,0 +1,26 @@
+{
+  "planning_only": true,
+  "project_id": "new-adventure",
+  "framework_revision": null,
+  "game_directory_local": null,
+  "game_hash_report_local": null,
+  "character": {
+    "display_name": null,
+    "reference_image_local": null,
+    "outfit": null,
+    "weapon": null,
+    "donor": "Leo",
+    "integration": "existing-slot-appearance",
+    "generation_provider": null,
+    "animation_provider": null
+  },
+  "level": {
+    "route_plan_local": null,
+    "season": null,
+    "objective": null,
+    "enemy_roster": [],
+    "boss": "Baxter",
+    "scope": "choose-three-panel-prototype-or-continuous-route-extension"
+  },
+  "notes": "Planning brief only. Resolve nulls relevant to the request; not accepted by the runtime. Keep personal inputs local."
+}

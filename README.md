@@ -2,6 +2,8 @@
 
 A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: Shredder's Revenge, with a reusable AI-assisted sprite pipeline.
 
+**Reuse on another installation:** install the [TMNT modding skill](docs/reusable-skill.md), then invoke `$tmnt-shredders-revenge`. It covers setup, the framework, photo-based characters, animation, Maps route planning, level integration, tests and rollback. The [entrypoint](skills/tmnt-shredders-revenge/SKILL.md) distinguishes working adapters from extensions still to implement.
+
 The [reusable workflow index](docs/workflows.md) links inspection, runtime builds, playtesting, encounters, backgrounds, and character creation. The [character authoring guide](docs/adding-characters.md) records the complete Malcolm process, including generation corrections, manifest authoring, native integration, and verification.
 
 **Status:** a summer suburban level prototype renders generated house, street, and park backgrounds in an isolated playtest using the native Baxter stage. Live logs confirm scene redirection, background rendering, and progression into the native boss fight. Combat gating and boss victory remain under verification. Malcolm's original character pack, native contract exporter, manifest validator/preview, and optional Leo-slot renderer are implemented; see [character verification](docs/character-verification.md) for completed checks and remaining visual review.

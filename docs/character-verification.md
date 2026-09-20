@@ -28,6 +28,8 @@ The corrected session began at 23:55 UTC. At 23:57:59 its log recorded live cove
 
 ## Live acceptance checklist
 
+Subsequent user feedback confirmed “He's showing up” and described motion as “A little jumpy.” This establishes user-observed character appearance and a motion-quality issue. It does not establish every item below; preserve the distinction between user feedback and a recorded full acceptance pass.
+
 - [ ] Custom selection portrait and Malcolm label appear together.
 - [ ] Malcolm renders in the level, with correct transparency and approximate native scale.
 - [ ] Walk/run and facing changes keep the ground anchor stable.
