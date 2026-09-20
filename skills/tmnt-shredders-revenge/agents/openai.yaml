@@ -1,0 +1,4 @@
+interface:
+  display_name: "TMNT Shredder's Revenge Modding"
+  short_description: "Build reusable TMNT characters, animations, and levels"
+  default_prompt: "Use $tmnt-shredders-revenge to adapt the mod framework for my installed game, a new character, and a new level."

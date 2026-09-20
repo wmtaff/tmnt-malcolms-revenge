@@ -1,0 +1,17 @@
+{
+  "planning_only": true,
+  "schema_version": 1,
+  "route_id": "example-walk",
+  "private_endpoints": {"start_address": null, "end_address": null},
+  "direction": "start-to-end",
+  "season": "summer",
+  "side_depicted": null,
+  "projection": "side-scroller reinterpretation",
+  "segments": [
+    {"id":"start","route_fraction":[0,0.3],"landmarks":[],"source_status":"missing","private_evidence":null,"left_join":null,"right_join":"middle","world_span":null,"original_art":null},
+    {"id":"middle","route_fraction":[0.3,0.7],"landmarks":[],"source_status":"missing","private_evidence":null,"left_join":"start","right_join":"destination","world_span":null,"original_art":null},
+    {"id":"destination","route_fraction":[0.7,1],"landmarks":[],"source_status":"missing","private_evidence":null,"left_join":"middle","right_join":null,"world_span":null,"original_art":null}
+  ],
+  "runtime_adapter": "not-implemented-for-arbitrary-segments",
+  "notes": "Example planning structure only; segment count is arbitrary. Fill from actual route observations, keep private endpoints local, and implement a validated reader before runtime use."
+}

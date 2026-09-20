@@ -1,5 +1,7 @@
 # Custom playable characters: recommended next milestone
 
+Historical design: the contract exporter, manifest tools and Leo-slot renderer described here have since been implemented. See [current evidence](character-verification.md) and the [reusable skill](reusable-skill.md); remaining animation and roster work is not implied complete.
+
 Start with a custom visual character on one existing player slot. Keep the native character identity, movement, combat states, animation names, timing, attack and vulnerability boxes, and event messages. This isolates whether new art can render and animate correctly. A new roster slot and a unique moveset are separate later milestones.
 
 ## What the first player requires
