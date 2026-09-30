@@ -18,6 +18,12 @@ See [runtime build and launch instructions](docs/runtime-build.md) and [verifica
 
 The [configurable three-wave encounter](docs/encounter-prototype.md) is now verified in live Episode 1 gameplay, with [Start/Status/Stop controls](docs/playtest-controls.md). Logs confirmed all three configured enemy positions and progression into the unchanged fourth native wave; the user defeated the first three enemies. This is an encounter prototype inside the existing episode, not a complete custom level.
 
+## Screenshots
+
+![Suburban prototype paused during the native Baxter encounter, with generated park scenery visible behind the menu](docs/images/residential-baxter-paused.png)
+
+Saved playtest capture: generated summer park scenery in the native Baxter encounter, paused. [More screenshots and capture notes](docs/screenshots.md). A clean screenshot of Malcolm's corrected appearance is still needed.
+
 ## Quick start
 
 Python 3.11 or newer is required. From the repository/worktree root:

@@ -1,0 +1,26 @@
+[
+  {
+    "file": "residential-baxter-paused.png",
+    "caption": "Residential prototype at the native Baxter fight, paused.",
+    "captured_date": "2026-09-08",
+    "source_bmp_sha256": "ef1c7381485396fd61739d3ab9de15a0fb8c5ae676573c12979f56661cc97a6a",
+    "png_sha256": "30a8906b66af5a62c22851b6bfdbbbae1e26741cdd5edb2805da8bbade7f7f9a",
+    "dimensions": [
+      1440,
+      810
+    ],
+    "conversion": "Lossless BMP-to-PNG; identical decoded pixels; no crop, retouching or overlays added."
+  },
+  {
+    "file": "episode1-encounter-paused.png",
+    "caption": "Episode 1 encounter playtest, paused; native Leonardo artwork.",
+    "captured_date": "2026-09-08",
+    "source_bmp_sha256": "9ba0af2079873e29a509e8093bb6ea90daa1719a10f06219436c6a4b858f0b3b",
+    "png_sha256": "d2f11d6cb7451a72cd926f6fc12dde3fc0e9c6e9adce549b825eb2534e9e0b91",
+    "dimensions": [
+      1440,
+      810
+    ],
+    "conversion": "Lossless BMP-to-PNG; identical decoded pixels; no crop, retouching or overlays added."
+  }
+]
