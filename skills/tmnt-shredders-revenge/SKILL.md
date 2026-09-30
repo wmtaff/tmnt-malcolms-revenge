@@ -9,7 +9,7 @@ Reuse the source-built framework while treating native contracts and visible pla
 
 ## Start with the actual request
 
-Locate the framework checkout and installed Steam game. If either is missing, use [setup](references/setup.md). Do not assume this skill's installation directory is the repository, reuse another PC's paths, or clone the repository's old default branch by accident. Read the checkout's `AGENTS.md` and record the framework revision.
+Locate the framework checkout and, when the task needs it, the installed Steam game. If either required input is missing, use [setup](references/setup.md). Do not assume this skill's installation directory is the repository or reuse another PC's paths. The current default branch is `main`; older feature links may omit later tooling. Read the checkout's `AGENTS.md` and record the framework revision.
 
 Create a task-local brief using [project-brief.json](assets/project-brief.json): requested character identity/weapon, donor versus new roster slot, start/end route and walking direction, season, objective, and available providers. Ask only for unresolved choices needed for the task. Keep personal photographs and precise route details local.
 

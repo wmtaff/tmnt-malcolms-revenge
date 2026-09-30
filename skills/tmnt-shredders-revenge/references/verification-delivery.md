@@ -38,7 +38,7 @@ Some native content loads produce handled first-chance exceptions during fallbac
 
 ## Publish reusable work
 
-Keep a focused feature branch and independently reviewed commits. Include a concise problem/result summary, validated revision, actual commands and evidence, known limitations and rollback. A fresh user needs the correct framework branch/revision: the original repository default branch lacks the later runtime/character work.
+Keep a focused feature branch and independently reviewed commits. Include a concise problem/result summary, validated revision, actual commands and evidence, known limitations and rollback. A fresh user should use current `main` and record its revision; historical feature branches may lack the later runtime/character work.
 
 In the project documentation link the skill entrypoint, setup, example manifest/provenance and current verification record. Historical design proposals should be marked historical when implementation supersedes them. Keep exact home addresses, personal reference photos, native exports, logs containing private paths and binaries out of commits. Generated character/level art may be distributed only within the user's intended scope; the skill package itself contains no personal character images.
 

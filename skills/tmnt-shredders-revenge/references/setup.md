@@ -5,12 +5,12 @@
 The skill is instructions; executable tooling lives in the framework repository:
 https://github.com/wmtaff/tmnt-malcolms-revenge
 
-Use an existing checkout when available. The portable skill was authored against framework commit `8be3c86` (2026-09-08); its branch contains character tooling missing from the original `main`. The skill publication branch is `codex/tmnt-reusable-skill`. Inspect the chosen revision before using different flags or upgrading dependencies.
+Use an existing checkout when available. The portable skill was originally authored against framework commit `8be3c86` (2026-09-08). The current default `main` contains the framework, bundled skill and Codex/Claude Code entrypoints; historical `codex/foundations` checkouts lack later tooling. Inspect and record the chosen revision before using different flags or upgrading dependencies. Reading this skill from the repo does not require installing it globally.
 
 For a fresh checkout:
 
 ```powershell
-git clone --branch codex/tmnt-reusable-skill https://github.com/wmtaff/tmnt-malcolms-revenge.git tmnt-mod
+git clone https://github.com/wmtaff/tmnt-malcolms-revenge.git tmnt-mod
 Set-Location tmnt-mod
 git rev-parse HEAD
 ```

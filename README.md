@@ -2,7 +2,9 @@
 
 A new-level mod project for the Steam edition of Teenage Mutant Ninja Turtles: Shredder's Revenge, with a reusable AI-assisted sprite pipeline.
 
-**Reuse on another installation:** install the [TMNT modding skill](docs/reusable-skill.md), then invoke `$tmnt-shredders-revenge`. It covers setup, the framework, photo-based characters, animation, Maps route planning, level integration, tests and rollback. The [entrypoint](skills/tmnt-shredders-revenge/SKILL.md) distinguishes working adapters from extensions still to implement.
+**Use with Codex or Claude Code:** clone this repository and open its root in your agent. [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md) load the shared instructions and bundled workflow—no separate skill installation needed. See [agent quick start](docs/agent-quickstart.md) for example prompts and prerequisites.
+
+**Use the workflow outside this repo:** optionally install the [TMNT modding skill](docs/reusable-skill.md). It covers setup, the framework, photo-based characters, animation, Maps route planning, level integration, tests and rollback. The [entrypoint](skills/tmnt-shredders-revenge/SKILL.md) distinguishes working adapters from extensions still to implement.
 
 The [reusable workflow index](docs/workflows.md) links inspection, runtime builds, playtesting, encounters, backgrounds, and character creation. The [character authoring guide](docs/adding-characters.md) records the complete Malcolm process, including generation corrections, manifest authoring, native integration, and verification.
 

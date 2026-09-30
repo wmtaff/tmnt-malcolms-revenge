@@ -14,10 +14,10 @@ PixelLab is an optional reference/skeleton animation handoff. No implemented Pix
 
 ## Install on this or another computer
 
-Use a reviewed checkout containing the skill. The original repository `main` contains only the foundations scope. Clone the publication branch, record its commit, and use that revision when reproducing an environment:
+For work inside this repo, Codex and Claude Code use the [repository entrypoints](agent-quickstart.md) without a separate installation. The steps below are optional for making the skill available in other projects. Clone the default `main` branch, record its commit, and use that revision when reproducing an environment:
 
 ```powershell
-git clone --branch codex/tmnt-reusable-skill https://github.com/wmtaff/tmnt-malcolms-revenge.git tmnt-mod
+git clone https://github.com/wmtaff/tmnt-malcolms-revenge.git tmnt-mod
 Set-Location tmnt-mod
 git rev-parse HEAD
 $skillSource = (Resolve-Path './skills/tmnt-shredders-revenge').Path
