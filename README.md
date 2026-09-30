@@ -24,6 +24,20 @@ The [configurable three-wave encounter](docs/encounter-prototype.md) is now veri
 
 Saved playtest capture: generated summer park scenery in the native Baxter encounter, paused. [More screenshots and capture notes](docs/screenshots.md). A clean screenshot of Malcolm's corrected appearance is still needed.
 
+## Artwork previews
+
+### Malcolm movement sheet
+
+![Malcolm character movement sheet with his wooden double-headed Viking axe](art/characters/malcolm/movement.png)
+
+Generated poses for Malcolm's custom character pack. See the [character authoring workflow](docs/adding-characters.md) for animation and game integration.
+
+### Summer suburban street
+
+![Generated summer suburban street background for the residential level prototype](art/backgrounds/residential/street.png)
+
+Generated scenery for the summer residential route prototype. See the [background workflow](docs/background-pipeline.md) for reference-based generation and repeat previews. Continuous address-to-address Street View reconstruction remains planned work. These images are source artwork previews, not gameplay captures.
+
 ## Quick start
 
 Python 3.11 or newer is required. From the repository/worktree root:
